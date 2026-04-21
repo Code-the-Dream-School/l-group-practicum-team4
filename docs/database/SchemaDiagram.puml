@@ -1,0 +1,90 @@
+@startuml Database Schema Diagram
+skinparam shadowing false
+skinparam monochrome false
+skinparam classFontSize 11
+
+' ================== ENTITIES ==================
+
+class User {
+  + _id : ObjectId <<PK>>
+  --
+  + name : String
+  + email : String <<unique>>
+  + password : String
+  --
+  + createdAt : Date
+  + updatedAt : Date
+}
+
+class Inventory {
+  + _id : ObjectId <<PK>>
+  + user : ObjectId <<FK>>
+  --
+  + coins : Number
+  + wearables : Array<Item>
+  + consumables : Array<Item>
+  --
+  + createdAt : Date
+  + updatedAt : Date
+}
+
+class Item {
+  + _id : ObjectId <<PK>>
+  --
+  + name : String
+  + description : String
+  + type : String <<enum>>
+  + coinCost : Number
+  + stat : String <<enum>>
+  + value : Number
+  --
+  + createdAt : Date
+  + updatedAt : Date
+}
+
+class Dungeon {
+  + _id : ObjectId <<PK>>
+  + user : ObjectId <<FK>>
+  --
+  + plotNumber : Number
+  + level : Number
+  + status : String <<enum>>
+  + lastHarvested : Date
+}
+
+class Dungeon {
+  + _id : ObjectId <<PK>>
+  --
+  + name : String
+  + enemies : Array<Character>
+  --
+  + createdAt : Date
+  + updatedAt : Date
+}
+
+class Character {
+  + _id : ObjectId <<PK>>
+  + user : ObjectId <<FK>>
+  --
+  + name : String
+  + health : Number
+  + attack : Number
+  + defense : Number
+  - speed: Number
+  + wearables : Array<Item>
+  --
+  + createdAt : Date
+  + updatedAt : Date
+}
+
+' ================== RELATIONSHIPS ==================
+
+User "1" --> "1" Inventory : owns
+User "1" --> "1" Character : owns
+User "1" --> "0..*" Dungeon : owns
+
+Inventory "1" --> "0..*" Item : contains
+Character "1" --> "0..*" Item : contains
+Dungeon "1" --> "0..*" Character : contains
+
+@enduml
