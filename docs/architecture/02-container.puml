@@ -1,0 +1,37 @@
+@startuml Containers diagram
+skinparam shadowing false
+skinparam componentStyle uml2
+
+' Actors
+actor "User" as User
+
+' Containers
+package "Frontend" as FrontendContainer {
+    [React Application] as ReactApp
+    note right
+        Single Page Application
+        • Pages / Components
+        • Hooks & State Management
+        • CSS Modules
+    end note
+}
+
+package "Backend" as BackendContainer {
+    [Node.js + Express API] as NodeAPI
+    note right
+        Layered Architecture:
+        • Routes
+        • Controllers
+        • Services
+        • Models (Mongoose)
+    end note
+}
+
+database "MongoDB" as MongoDB
+
+' Relationships
+User --> ReactApp : Uses via browser\n(HTTPS)
+ReactApp --> NodeAPI : Makes API calls\n(JSON over HTTPS)
+NodeAPI --> MongoDB : Reads / Writes data\n(Mongoose ODM)
+
+@enduml

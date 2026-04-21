@@ -1,0 +1,36 @@
+
+@startuml Context diagram
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+' Actors
+actor "User" as User
+
+' Main System
+rectangle "Dungeon Battle game\n(React + Node.js + Express)" as System
+
+' External Systems
+database "MongoDB" as MongoDB
+
+' Relationships
+User --> System : Uses the application\n(register, login, battle, market, etc.)
+System --> MongoDB : Stores and retrieves data\n(Users, items, dungeons, etc.)
+
+' Notes
+note right of System
+  <b>Main Technologies:</b>
+  • Frontend: React (Pages + Hooks + CSS Modules)
+  • Backend: Node.js + Express
+  • Architecture: Routes → Controllers → Services → Models
+  • Authentication: JWT + bcrypt
+end note
+
+note right of User
+  Main interactions:
+  • User registration
+  • User login
+  • Profile management
+  • Energy and coins tracking
+end note
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml Component Hierarchy Diagram
+skinparam shadowing false
+skinparam componentStyle uml2
+
+package "Frontend - React Application" as Frontend {
+
+    package "Pages" {
+        [App] as App
+        [Register] as Register
+        [Login] as Login
+        [Home] as Home
+        [Character] as Character
+        [Marketplace] as Marketplace
+        [Dungeons] as Dungeons
+        [DungeonDetails] as DungeonDetails
+        [About] as About
+    }
+
+    package "Components" {
+        [Header] as Header
+        [Footer] as Footer
+        [Navbar] as Navbar
+        [StatsBar] as StatsBar
+          
+
+        package "Forms" {
+            [RegisterForm] as RegisterForm
+            [LoginForm] as LoginForm
+        }
+
+        package "Common Components" as CommonComponents {
+            [CardList] as CardList
+            [Card] as Card
+            [Button] as Button
+            [Input] as Input
+            [Select] as Select
+        }
+    }
+}
+
+' Relationships
+App --> Register
+App --> Login
+App --> Home
+App --> Character
+App --> Marketplace
+App --> Dungeons
+App --> DungeonDetails
+App --> About
+App --> Header
+App --> Footer
+App --> StatsBar
+
+[Header] --> [Navbar]
+
+Register --> RegisterForm
+Login --> LoginForm
+RegisterForm --> CommonComponents
+LoginForm --> CommonComponents
+Character --> CommonComponents
+Marketplace --> CommonComponents
+Dungeons --> CommonComponents
+DungeonDetails --> CommonComponents
+
+@enduml
