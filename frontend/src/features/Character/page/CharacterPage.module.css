@@ -1,0 +1,163 @@
+.page {
+  min-height: 100vh;
+  padding: 20px;
+
+  background-size: cover;
+  background-position: center;
+
+  font-family: "Press Start 2P", monospace;
+  color: #f5e6c8;
+
+  position: relative;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #E0A46A;
+ 
+  z-index: 0;
+}
+
+.page > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ================= TITLE ================= */
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  color: #5C381D;
+  text-shadow: 2px 2px #000;
+}
+
+/* ================= PANELS (shared style) ================= */
+
+.profile,
+.stats,
+.equipment,
+.inventory {
+  background: #5A2A1F; 
+  border: 4px solid #6b4a2f;
+  border-radius: 6px;
+
+  padding: 16px;
+  margin-bottom: 20px;
+
+  box-shadow:
+    inset 0 0 0 2px #3a2618,
+    0 4px 0 #000;
+}
+
+/* ================= PROFILE ================= */
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile h2 {
+  color: #ffd27f;
+  margin-bottom: 10px;
+}
+
+.profile p {
+  margin: 4px 0;
+}
+
+/* ================= STATS ================= */
+
+.stats p {
+  margin: 10px 0;
+  position: relative;
+  padding-left: 10px;
+}
+
+/* Fake pixel bars */
+.stats p::after {
+  content: "";
+  display: block;
+  height: 10px;
+  margin-top: 6px;
+  background: #3a2a1a;
+  border: 2px solid #000;
+}
+
+.stats p:nth-child(1)::after {
+  background: linear-gradient(to right, #b22222 70%, #3a2a1a 70%);
+}
+
+.stats p:nth-child(2)::after {
+  background: linear-gradient(to right, #d98c2b 40%, #3a2a1a 40%);
+}
+
+.stats p:nth-child(3)::after {
+  background: linear-gradient(to right, #4a90e2 30%, #3a2a1a 30%);
+}
+
+/* ================= EQUIPMENT ================= */
+
+.equipment h3 {
+  color: #ffb347;
+  margin-bottom: 10px;
+}
+
+.equipment p {
+  margin: 6px 0;
+}
+
+/* ================= INVENTORY ================= */
+
+.inventory h3 {
+  margin-bottom: 12px;
+  color: #ffb347;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+/* Inventory slots */
+.grid div {
+  width: 100%;
+  aspect-ratio: 1;
+
+  background: #1a120c;
+  border: 3px solid #5a3b25;
+
+  box-shadow:
+    inset 0 0 0 2px #000,
+    0 2px 0 #000;
+
+  transition: transform 0.1s ease;
+}
+
+.grid div:hover {
+  transform: translateY(-2px);
+  border-color: #ffcc66;
+}
+
+/* ================= PIXEL BUTTON STYLE (future use) ================= */
+
+.button {
+  background: #7a2e1f;
+  border: 3px solid #ffb347;
+  color: #fff;
+
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+
+  box-shadow: 0 3px 0 #000;
+}
+
+.button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
