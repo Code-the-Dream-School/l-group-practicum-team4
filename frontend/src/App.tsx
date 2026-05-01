@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 
+import CharacterPage from './features/Character/page/CharacterPage';
+// import MarketplacePage from './features/Marketplace/page/MarketplacePage';
+
+
 function App() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(null);
@@ -24,15 +28,20 @@ function App() {
 
   return (
     <main style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>Frontend ↔ Backend Test</h1>
+      {/* <h1>Frontend ↔ Backend Test</h1>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {!error && (
         <p>
           Message from API: <strong>{message}</strong>
+         
         </p>
-      )}
+      )}  */}
+      
+        <CharacterPage/>  
+         {/* <MarketplacePage/> */}
+      
     </main>
   );
 }
