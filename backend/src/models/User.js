@@ -1,27 +1,35 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
+require("dotenv").config();
+const mongoose = require("mongoose");
 //const bcrypt = require('bcryptjs');
 //const jwt = require('jsonwebtoken');
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: [true, 'user name required'],
+      type: String,
+      required: [true, "user name required"],
     },
     email: {
-        type: String,
-        required: [true, 'user email required'],
-        match: [
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-            'invalid email',
-        ],
-        unique: [true, 'email already in use'],
+      type: String,
+      required: [true, "user email required"],
+      match: [
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        "invalid email",
+      ],
+      unique: [true, "email already in use"],
     },
     password: {
-        type: String,
-        required: [true, 'user password required'],
+      type: String,
+      required: [true, "user password required"],
     },
-});
+    character: {
+      type: mongoose.Types.ObjectId,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
 // Hash password
 /*UserSchema.pre('save', async function () {
@@ -40,4 +48,4 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
     return isMatch;
 };*/
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);
