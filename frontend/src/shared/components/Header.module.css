@@ -1,0 +1,45 @@
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: var(--bg-color);
+}
+
+.header h1 {
+	color: var(--text-color);
+	font-size: 30px;
+	margin: 20px;
+}
+
+.header nav {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	font-size: 20px;
+	margin: 0px 20px;
+}
+
+.navlink {
+	text-decoration: none;
+	color: var(--text-color);
+	font-weight: bold;
+	padding: 10px;
+	background-color: var(--bg-basic);
+	border-radius: 16px;
+	box-shadow: 2px 2px 0px var(--primary-color);
+}
+
+.navlink:hover {
+	color: var(--primary-color);
+	box-shadow: 2px 2px 0px var(--primary-color);
+}
+
+.navlink-active {
+	text-decoration: none;
+	color: var(--primary-color);
+	font-weight: bold;
+	padding: 10px;
+	background-color: var(--bg-basic);
+	border-radius: 16px;
+	box-shadow: 2px 2px 0px var(--primary-color);
+}
