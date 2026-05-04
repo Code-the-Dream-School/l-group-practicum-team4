@@ -3,43 +3,13 @@ import { useEffect, useRef } from "react";
 interface SpriteProps {
 	tileset: HTMLImageElement | null;
 	size?: number;
-	itemType?: string;
+	itemName?: string;
 }
-
-// export default function Sprite({
-// 	tileset,
-// 	size = 48,
-// 	itemType = "",
-// }: SpriteProps) {
-// 	if (!tileset) return;
-
-// 	const ORIGINAL_SIZE = 16;
-// 	const spacing = 1;
-
-// 	const { col, row } = getPosition(itemType);
-
-// 	const sx = col * (ORIGINAL_SIZE + spacing);
-// 	const sy = row * (ORIGINAL_SIZE + spacing);
-
-// 	return (
-// 		<img
-// 			src={tileset.src}
-// 			alt="item"
-// 			style={{
-// 				width: size,
-// 				height: size,
-// 				imageRendering: "pixelated",
-// 				objectFit: "none",
-// 				objectPosition: `-${sx}px -${sy}px`,
-// 			}}
-// 		/>
-// 	);
-// }
 
 export default function Sprite({
 	tileset,
 	size = 48,
-	itemType = "",
+	itemName = "",
 }: SpriteProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -53,7 +23,7 @@ export default function Sprite({
 		const ORIGINAL_SIZE = 16;
 		const spacing = 1;
 
-		const { col, row } = getPosition(itemType);
+		const { col, row } = getPosition(itemName);
 
 		const sx = col * (ORIGINAL_SIZE + spacing);
 		const sy = row * (ORIGINAL_SIZE + spacing);
@@ -73,16 +43,16 @@ export default function Sprite({
 			size,
 			size, // destino (escalado)
 		);
-	}, [tileset, size, itemType]);
+	}, [tileset, size, itemName]);
 
 	return <canvas ref={canvasRef} />;
 }
 
-function getPosition(type: string) {
+function getPosition(name: string) {
 	let col = 0;
 	let row = 0;
 
-	switch (type) {
+	switch (name) {
 		case "Dagger":
 			col = 7;
 			row = 8;

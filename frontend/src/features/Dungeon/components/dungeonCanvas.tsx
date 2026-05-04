@@ -88,20 +88,12 @@ export default function DungeonCanvas() {
 					enemy,
 					enemy.x - offsetX - TILE_SIZE / 2,
 					enemy.y - offsetY - TILE_SIZE / 2 - 4,
-					enemy.x % 2 === 0 ? "left" : "right",
-					{},
 				);
 			});
 		}
 
 		//Drawing player
-		PlayerDraw(
-			ctx,
-			TILE_SIZE,
-			dungeonState.tileset,
-			dungeonState.player.facing,
-			dungeonState.player.gear,
-		);
+		PlayerDraw(ctx, TILE_SIZE, dungeonState.tileset, dungeonState.player);
 	}, [dungeonState, MapDraw, PlayerDraw, EnemyDraw]);
 
 	//#region Collision System
@@ -171,15 +163,16 @@ export default function DungeonCanvas() {
 						setEnemy(null);
 					}
 
-					setPlayer(
-						newX,
-						newY,
-						vx > 0
-							? "Right"
-							: vx < 0
-								? "Left"
-								: dungeonState.player.facing,
-					);
+					setPlayer({
+						x: newX,
+						y: newY,
+						facing:
+							vx > 0
+								? "Right"
+								: vx < 0
+									? "Left"
+									: dungeonState.player.facing,
+					});
 				}
 			}
 

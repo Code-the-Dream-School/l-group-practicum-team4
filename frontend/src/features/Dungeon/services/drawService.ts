@@ -1,5 +1,5 @@
 import * as ROT from "rot-js";
-import type { Enemy } from "../../../shared/models/models";
+import type { Player, Enemy, Character } from "../../../shared/models/models";
 
 export const mapGenerator = (seed: number, width: number, height: number) => {
 	ROT.RNG.setSeed(seed);
@@ -199,8 +199,7 @@ export const PlayerDraw = (
 	ctx: CanvasRenderingContext2D,
 	tileSize: number,
 	tileset: HTMLImageElement,
-	facing: string,
-	gear: CharacterGear = {},
+	player: Player,
 ) => {
 	if (!ctx || !tileset) return;
 
@@ -211,20 +210,20 @@ export const PlayerDraw = (
 	let col;
 	let row;
 	if (
-		gear?.armor?.type == "Plate Armor" &&
-		gear?.helmet?.type == "Plate Helmet"
+		player.gear?.armor?.name == "Plate Armor" &&
+		player.gear?.helmet?.name == "Plate Helmet"
 	) {
 		col = 1;
 		row = 8;
 	} else if (
-		gear?.armor?.type == "Plate Armor" &&
-		(gear?.helmet == null || gear?.helmet == undefined)
+		player.gear?.armor?.name == "Plate Armor" &&
+		(player.gear?.helmet == null || player.gear?.helmet == undefined)
 	) {
 		col = 2;
 		row = 8;
 	} else if (
-		(gear?.armor == null || gear?.armor == undefined) &&
-		gear?.helmet?.type == "Plate Helmet"
+		(player.gear?.armor == null || player.gear?.armor == undefined) &&
+		player.gear?.helmet?.name == "Plate Helmet"
 	) {
 		col = 2;
 		row = 7;
@@ -234,7 +233,7 @@ export const PlayerDraw = (
 	}
 	//#endregion
 
-	CharacterDraw(ctx, tileSize, tileset, col, row, px, py, facing, gear);
+	CharacterDraw(ctx, tileSize, tileset, col, row, px, py, player);
 };
 
 export const EnemyDraw = (
@@ -244,8 +243,6 @@ export const EnemyDraw = (
 	enemy: Enemy,
 	px: number,
 	py: number,
-	facing: string,
-	gear: CharacterGear = {},
 ) => {
 	if (!ctx || !tileset) return;
 
@@ -291,15 +288,8 @@ export const EnemyDraw = (
 	}
 	//#endregion
 
-	CharacterDraw(ctx, tileSize, tileset, col, row, px, py, facing, gear);
+	CharacterDraw(ctx, tileSize, tileset, col, row, px, py, enemy);
 };
-
-export interface CharacterGear {
-	helmet?: { type: string };
-	armor?: { type: string };
-	weapon?: { type: string };
-	shield?: { type: string };
-}
 
 const CharacterDraw = (
 	ctx: CanvasRenderingContext2D,
@@ -309,8 +299,7 @@ const CharacterDraw = (
 	row: number,
 	px: number,
 	py: number,
-	facing: string,
-	gear: CharacterGear = {},
+	character: Character,
 ) => {
 	if (!ctx || !tileset) return;
 
@@ -327,17 +316,17 @@ const CharacterDraw = (
 	//#region Character sprite
 
 	DrawSprite(ctx, tileset, col, row, px, py, tileSize, {
-		flipX: facing == "Left" ? true : false,
+		flipX: character.facing == "Left" ? true : false,
 	});
 	//#endregion
 
 	//#region Weapon sprite
 
-	if (gear?.weapon && gear?.weapon?.type) {
+	if (character.gear.weapon && character.gear.weapon?.name) {
 		let wCol = 0;
 		let wRow = 0;
 
-		switch (gear.weapon.type) {
+		switch (character.gear.weapon.name) {
 			case "Dagger":
 				wCol = 7;
 				wRow = 8;
@@ -375,23 +364,23 @@ const CharacterDraw = (
 			tileset,
 			wCol,
 			wRow,
-			facing === "Left" ? px - 20 : px + 20,
+			character.facing === "Left" ? px - 20 : px + 20,
 			py,
 			tileSize,
 			{
 				rotation: -35,
-				flipX: facing === "Left" ? false : true,
+				flipX: character.facing === "Left" ? false : true,
 			},
 		);
 	}
 	//#endregion
 
 	//#region Shield sprite
-	if (gear?.shield && gear?.shield?.type) {
+	if (character.gear?.shield && character.gear?.shield?.name) {
 		let sCol = 0;
 		let sRow = 0;
 
-		switch (gear.shield.type) {
+		switch (character.gear.shield.name) {
 			case "Wooden Shield":
 				sCol = 5;
 				sRow = 8;
@@ -407,11 +396,11 @@ const CharacterDraw = (
 			tileset,
 			sCol,
 			sRow,
-			facing === "Left" ? px + 15 : px - 15,
+			character.facing === "Left" ? px + 15 : px - 15,
 			py + 8,
 			tileSize,
 			{
-				rotation: facing === "Left" ? 10 : -10,
+				rotation: character.facing === "Left" ? 10 : -10,
 			},
 		);
 	}

@@ -95,6 +95,14 @@
 	gap: 10px;
 }
 
+.stat div {
+	display: flex;
+	gap: 2px;
+	& b {
+		color: var(--MintGreen);
+	}
+}
+
 .stat label {
 	font-family: "Fredoka";
 	font-weight: 600;
