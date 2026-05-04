@@ -28,7 +28,7 @@ export default function AboutPage() {
   };
 
   return (
-    <div className={styles.page}>
+  
       <div className={styles.frame}>
         {/* LEFT MENU */}
         <aside className={styles.sidebar}>
@@ -94,6 +94,7 @@ export default function AboutPage() {
           </div>
         </main>
       </div>
-    </div>
+ 
   );
 }
+

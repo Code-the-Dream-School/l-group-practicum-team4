@@ -11,10 +11,9 @@
 /* OUTER FRAME */
 .frame {
   display: flex;
-  width: 1100px;
-  height: 700px;
-
-  background: #5a2a1f;
+   /* width: 100vw;
+  height: 100vh; */
+  background: #fff2d2;
 
   border: 6px solid #3b1f12;
   box-shadow:
@@ -37,7 +36,7 @@
   font-family: inherit;
   font-size: 20px;
 
-  background: #6b3a22;
+  background: #3c506f;
   color: #f5e6c8;
 
   border: 3px solid #3b1f12;
