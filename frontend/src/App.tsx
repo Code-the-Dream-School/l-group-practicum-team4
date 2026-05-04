@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 
+import AboutPage from './features/About/AboutPage';
 import CharacterPage from './features/Character/page/CharacterPage';
+
 // import MarketplacePage from './features/Marketplace/page/MarketplacePage';
 
 
@@ -38,8 +40,8 @@ function App() {
          
         </p>
       )}  */}
-      
-        <CharacterPage/>  
+      <AboutPage/>
+        {/* <CharacterPage/>   */}
          {/* <MarketplacePage/> */}
       
     </main>
