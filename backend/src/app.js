@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
 const helloRoutes = require('./routes/hello.routes');
+const dungeonRoutes = require("./routes/dungeonMap.routes");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(limiter);
 
 // Routes
 app.use('/api/hello', helloRoutes);
+app.use("/api/dungeon", dungeonRoutes);
 
 // Root route
 app.get('/', (req, res) => {
