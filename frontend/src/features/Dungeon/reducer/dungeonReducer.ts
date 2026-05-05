@@ -49,6 +49,14 @@ export const initialStates: State = {
 				stat: "defense",
 				value: 5,
 			},
+			{
+				id: 8,
+				name: "Blue Potion",
+				description: "Blue Potion",
+				type: "potion",
+				stat: "defense",
+				value: 20,
+			},
 		],
 		gear: {
 			helmet: {
@@ -180,6 +188,7 @@ export function reducer(state: State = initialStates, action: Action): State {
 				player: new Player({
 					...state.player,
 					...action.payload,
+					timeBonuses: state.player?.timeBonuses,
 				}),
 			};
 		case actions.SET_ENEMY:

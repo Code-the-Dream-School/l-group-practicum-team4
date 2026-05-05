@@ -10,6 +10,10 @@ export class Character {
 	gear: CharacterGear;
 	inventory: Item[];
 
+	timeBonuses: TimeBonus[] = [];
+
+	private onBonusesChanged?: () => void;
+
 	constructor(data: Partial<Character>) {
 		this.x = data.x ?? 0;
 		this.y = data.y ?? 0;
@@ -21,22 +25,40 @@ export class Character {
 		this.speed = data.speed ?? 0;
 		this.gear = data.gear ?? {};
 		this.inventory = data.inventory ?? [];
+
+		this.timeBonuses = data.timeBonuses ?? [];
 	}
 
 	get healthPlus() {
-		return this.getGearBonus("health");
+		return this.getGearBonus("health") + this.getTemporaryBonus("health");
 	}
 
 	get attackPlus() {
-		return this.getGearBonus("attack");
+		return this.getGearBonus("attack") + this.getTemporaryBonus("attack");
 	}
 
 	get defensePlus() {
-		return this.getGearBonus("defense");
+		return this.getGearBonus("defense") + this.getTemporaryBonus("defense");
 	}
 
 	get speedPlus() {
-		return this.getGearBonus("speed");
+		return this.getGearBonus("speed") + this.getTemporaryBonus("speed");
+	}
+
+	get healthBonus() {
+		return this.timeBonuses.find((b) => b.stat === "health");
+	}
+
+	get attackBonus() {
+		return this.timeBonuses.find((b) => b.stat === "attack");
+	}
+
+	get defenseBonus() {
+		return this.timeBonuses.find((b) => b.stat === "defense");
+	}
+
+	get speedBonus() {
+		return this.timeBonuses.find((b) => b.stat === "speed");
 	}
 
 	private getGearBonus(stat: string): number {
@@ -55,6 +77,52 @@ export class Character {
 		}
 		return bonus;
 	}
+
+	applyTemporaryBonus(stat: string, value: number, durationMs: number) {
+		const bonus: TimeBonus = {
+			stat: stat.toLowerCase(),
+			value,
+			expiresAt: Date.now() + durationMs,
+			id: Math.random().toString(36).substring(7),
+		};
+
+		this.timeBonuses.push(bonus);
+
+		setTimeout(() => {
+			this.removeExpiredBonuses();
+		}, durationMs);
+	}
+
+	setOnBonusesChanged(callback: () => void) {
+		this.onBonusesChanged = callback;
+	}
+
+	private removeExpiredBonuses() {
+		const beforeCount = this.timeBonuses.length;
+
+		this.timeBonuses = this.timeBonuses.filter(
+			(bonus) => bonus.expiresAt > Date.now(),
+		);
+
+		if (this.timeBonuses.length !== beforeCount) {
+			this.onBonusesChanged?.();
+		}
+	}
+
+	private getTemporaryBonus(stat: string): number {
+		this.removeExpiredBonuses();
+
+		return this.timeBonuses
+			.filter((b) => b.stat === stat.toLowerCase())
+			.reduce((sum, b) => sum + b.value, 0);
+	}
+}
+
+export interface TimeBonus {
+	id: string;
+	stat: string;
+	value: number;
+	expiresAt: number;
 }
 
 export class Player extends Character {}
