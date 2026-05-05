@@ -1,0 +1,14 @@
+.page {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+  font-family: "Fredoka";
+	font-weight: 500;
+}
+
+
+.marketPanel {
+  width: 600px;
+}
+

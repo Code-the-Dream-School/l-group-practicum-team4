@@ -1,0 +1,42 @@
+.marketPanel {
+  width: 100%;
+  background: #e7d7b1;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.marketHeader {
+  background: #e8893a;
+  text-align: center;
+  padding: 20px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.marketTabs {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+}
+
+.tab {
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  cursor: pointer;
+  color: #555;
+}
+
+.active {
+  color: #e8893a;
+}
+
+
+
+/* GOLD BAR */
+.marketGold {
+  background: #e8893a;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+}

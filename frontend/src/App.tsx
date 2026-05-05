@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 
-import CharacterPage from './features/Character/page/CharacterPage';
-// import MarketplacePage from './features/Marketplace/page/MarketplacePage';
+// import CharacterPage from './features/Character/page/CharacterPage';
+import MarketplacePage from './features/Marketplace/page/MarketplacePage';
 
 
 function App() {
@@ -39,8 +39,8 @@ function App() {
         </p>
       )}  */}
       
-        <CharacterPage/>  
-         {/* <MarketplacePage/> */}
+        {/* <CharacterPage/>   */}
+         <MarketplacePage/>
       
     </main>
   );
