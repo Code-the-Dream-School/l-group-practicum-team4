@@ -13,7 +13,7 @@ const createTestChar = async (req, res) => {
     const newCharacter = await Character.create(charJSON);
     res.json(newCharacter);
   } catch (e) {
-    console.log(error);
+    console.log(e);
     res.json("Could not create new character");
   }
 };
