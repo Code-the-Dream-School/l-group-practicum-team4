@@ -2,6 +2,10 @@ import { Routes, Route } from "react-router";
 import { Toaster } from "react-hot-toast";
 import styles from "./App.module.css";
 
+import AboutPage from './features/About/AboutPage';
+import CharacterPage from './features/Character/page/CharacterPage';
+
+// import MarketplacePage from './features/Marketplace/page/MarketplacePage';
 import { DungeonProvider } from "./features/Dungeon/contexts/dungeonContext";
 
 import Header from "./shared/components/Header";
@@ -17,9 +21,10 @@ function App() {
 				<Header title="DUNGEON BATTLE" />
 				<div className={styles["route-content"]}>
 					<Routes>
-						<Route path="/character" element={<CharacterPage />} />
+						<Route path="/about" element={<AboutPage />} />
 						<Route path="/dungeon" element={<DungeonPage />} />
 						<Route path="/market" element={<MarketplacePage />} />
+
 					</Routes>
 				</div>
 				<Footer />
