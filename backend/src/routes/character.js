@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const { createTestChar, getTestChar } = require("../controllers/character");
+const {
+  getAllCharacters,
+  getCharacter,
+  createCharacter,
+  updateCharacter
+} = require("../controllers/character");
 
-router.route("/makeTest").post(createTestChar);
-router.route("/getTest").get(getTestChar);
+router.route("/").get(getAllCharacters).post(createCharacter);
+router.route("/:id").get(getCharacter).patch(updateCharacter);
 
 module.exports = router;
