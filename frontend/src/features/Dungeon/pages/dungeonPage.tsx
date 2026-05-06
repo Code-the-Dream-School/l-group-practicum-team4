@@ -13,7 +13,7 @@ export default function DungeonPage() {
 			<div className={styles["panelLeft"]}>
 				{dungeonState.player && dungeonState.tileset && (
 					<CharacterPanel
-						character={{ ...dungeonState.player }}
+						character={dungeonState.player}
 						tileset={dungeonState.tileset}
 					/>
 				)}
@@ -22,7 +22,7 @@ export default function DungeonPage() {
 				<div className={styles["panelRight"]}>
 					{dungeonState.enemy && dungeonState.tileset ? (
 						<CharacterPanel
-							character={{ ...dungeonState.enemy }}
+							character={dungeonState.enemy}
 							tileset={dungeonState.tileset}
 						/>
 					) : (

@@ -1,27 +1,13 @@
 import styles from "./CharacterPanel.module.css";
 import { useState } from "react";
+import type { Character } from "../models/models";
 import Sprite from "./Sprite";
 
 function CharacterPanel({
 	character,
 	tileset,
 }: {
-	character: {
-		x: number;
-		y: number;
-		name: string;
-		health: number;
-		attack: number;
-		defense: number;
-		speed: number;
-		gear: {
-			helmet?: { type: string };
-			armor?: { type: string };
-			weapon?: { type: string };
-			shield?: { type: string };
-		};
-		inventory: { index: number; type: string }[];
-	};
+	character: Character;
 	tileset: HTMLImageElement;
 }) {
 	const [activeTab, setActiveTab] = useState<"stats" | "inventory">("stats");
@@ -48,87 +34,143 @@ function CharacterPanel({
 						</button>
 					</div>
 				</div>
-				<div className={styles["gear-container"]}>
-					<div className={styles["gear"]}>
-						{character.gear.helmet ? (
-							<Sprite
-								tileset={tileset}
-								size={48}
-								itemType={character.gear.helmet.type}
-							/>
-						) : (
-							<></>
-						)}
-					</div>
-					<div className={styles["center-gear-container"]}>
-						<div className={styles["gear"]}>
-							{character.gear.shield ? (
-								<Sprite
-									tileset={tileset}
-									size={48}
-									itemType={character.gear.shield.type}
-								/>
-							) : (
-								<></>
-							)}
-						</div>
-						<div className={styles["gear"]}>
-							{character.gear.armor ? (
-								<Sprite
-									tileset={tileset}
-									size={48}
-									itemType={character.gear.armor.type}
-								/>
-							) : (
-								<></>
-							)}
-						</div>
-						<div className={styles["gear"]}>
-							{character.gear.weapon ? (
-								<Sprite
-									tileset={tileset}
-									size={48}
-									itemType={character.gear.weapon.type}
-								/>
-							) : (
-								<></>
-							)}
-						</div>
-					</div>
-				</div>
+
+				<GearContainer character={character} tileset={tileset} />
+
 				{activeTab === "stats" && (
-					<div className={styles["stats-container"]}>
-						<div className={styles["stat"]}>
-							<label>Health:</label>
-							<p>{character.health}</p>
-						</div>
-						<div className={styles["stat"]}>
-							<label>Attack:</label>
-							<p>{character.attack}</p>
-						</div>
-						<div className={styles["stat"]}>
-							<label>Defense:</label>
-							<p>{character.defense}</p>
-						</div>
-						<div className={styles["stat"]}>
-							<label>Speed:</label>
-							<p>{character.speed}</p>
-						</div>
-					</div>
+					<StatContainer character={character} />
 				)}
+
 				{activeTab === "inventory" && (
-					<div className={styles["inventory-container"]}>
-						{character.inventory.map((item) => (
-							<div key={item.index} className={styles["item"]}>
-								<Sprite
-									tileset={tileset}
-									size={40}
-									itemType={item.type}
-								/>
-							</div>
-						))}
-					</div>
+					<InventoryContainer
+						character={character}
+						tileset={tileset}
+					/>
 				)}
+			</div>
+		</div>
+	);
+}
+
+function GearContainer({
+	character,
+	tileset,
+}: {
+	character: Character;
+	tileset: HTMLImageElement;
+}) {
+	return (
+		<div className={styles["gear-container"]}>
+			<div className={styles["gear"]}>
+				{character.gear.helmet ? (
+					<Sprite
+						tileset={tileset}
+						size={48}
+						itemName={character.gear.helmet.name}
+					/>
+				) : (
+					<></>
+				)}
+			</div>
+			<div className={styles["center-gear-container"]}>
+				<div className={styles["gear"]}>
+					{character.gear.shield ? (
+						<Sprite
+							tileset={tileset}
+							size={48}
+							itemName={character.gear.shield.name}
+						/>
+					) : (
+						<></>
+					)}
+				</div>
+				<div className={styles["gear"]}>
+					{character.gear.armor ? (
+						<Sprite
+							tileset={tileset}
+							size={48}
+							itemName={character.gear.armor.name}
+						/>
+					) : (
+						<></>
+					)}
+				</div>
+				<div className={styles["gear"]}>
+					{character.gear.weapon ? (
+						<Sprite
+							tileset={tileset}
+							size={48}
+							itemName={character.gear.weapon.name}
+						/>
+					) : (
+						<></>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function StatContainer({ character }: { character: Character }) {
+	return (
+		<div className={styles["stats-container"]}>
+			<Stat
+				label="Health"
+				value={character.health}
+				plusValue={character.healthPlus}
+			/>
+			<Stat
+				label="Attack"
+				value={character.attack}
+				plusValue={character.attackPlus}
+			/>
+			<Stat
+				label="Defense"
+				value={character.defense}
+				plusValue={character.defensePlus}
+			/>
+			<Stat
+				label="Speed"
+				value={character.speed}
+				plusValue={character.speedPlus}
+			/>
+		</div>
+	);
+}
+
+function InventoryContainer({
+	character,
+	tileset,
+}: {
+	character: Character;
+	tileset: HTMLImageElement;
+}) {
+	return (
+		<div className={styles["inventory-container"]}>
+			{character.inventory.map((item) => (
+				<div key={item.id} className={styles["item"]}>
+					<Sprite tileset={tileset} size={40} itemName={item.name} />
+				</div>
+			))}
+		</div>
+	);
+}
+
+function Stat({
+	label,
+	value,
+	plusValue,
+}: {
+	label: string;
+	value: number;
+	plusValue: number;
+}) {
+	return (
+		<div className={styles["stat"]}>
+			<label>{`${label}:`}</label>
+			<div>
+				<p>{value}</p>
+				{plusValue ? <b>{`+${plusValue}`}</b> : <></>}
 			</div>
 		</div>
 	);
