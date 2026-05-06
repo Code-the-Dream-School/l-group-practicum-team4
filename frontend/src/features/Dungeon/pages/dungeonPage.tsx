@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import styles from "./dungeonPage.module.css";
 import DungeonCanvas from "../components/dungeonCanvas";
 import CharacterPanel from "../../../shared/components/CharacterPanel";
@@ -5,7 +6,21 @@ import CharacterPanel from "../../../shared/components/CharacterPanel";
 import { useDungeon } from "../hooks/dungeonHook";
 
 export default function DungeonPage() {
-	const { state: dungeonState } = useDungeon();
+	const {
+		state: dungeonState,
+		setPlayer,
+		EquipItem,
+		UnequipItem,
+		ConsumeItem,
+	} = useDungeon();
+
+	useEffect(() => {
+		if (dungeonState.player) {
+			dungeonState.player.setOnBonusesChanged(() => {
+				setPlayer({});
+			});
+		}
+	}, [dungeonState.player, setPlayer]);
 
 	return (
 		<div className={styles["container"]}>
@@ -15,6 +30,9 @@ export default function DungeonPage() {
 					<CharacterPanel
 						character={dungeonState.player}
 						tileset={dungeonState.tileset}
+						equipItem={EquipItem}
+						unequipItem={UnequipItem}
+						consumeItem={ConsumeItem}
 					/>
 				)}
 			</div>
