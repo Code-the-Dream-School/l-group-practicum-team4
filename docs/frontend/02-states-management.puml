@@ -1,0 +1,79 @@
+@startuml Component Hierarchy Diagram
+skinparam shadowing false
+skinparam componentStyle uml2
+
+package "Frontend - React Application" as Frontend {
+
+    package "Pages" {
+        [Register] as Register
+        [Login] as Login
+        [Character] as Character
+        [Marketplace] as Marketplace
+        [Dungeons] as Dungeons
+        [DungeonDetails] as DungeonDetails
+    }
+
+    package "Custom Hooks" {
+        [UseAuth] as UseAuth
+        [UseUser] as UseUser
+        [UseMarket] as UseMarket
+        [UseDungeon] as UseDungeon
+    }
+
+    package "State Management" {
+        [AuthContext] as AuthContext
+        [AuthReducer] as AuthReducer
+        [UserContext] as UserContext
+        [UserReducer] as UserReducer
+        [MarketContext] as MarketContext
+        [MarketReducer] as MarketReducer
+        [DungeonContext] as DungeonContext
+        [DungeonReducer] as DungeonReducer
+    }
+
+    package "Services & Utils" {
+        [AuthService] as AuthService
+        [UserService] as UserService
+        [MarketService] as MarketService
+        [DungeonService] as DungeonService
+        [ApiService] as ApiService
+        [Utils] as Utils
+    }
+
+    note left of Frontend
+      <b>Frontend Architecture</b>
+      • React 22+
+      • Custom Hooks
+      • Context & Reducers for state management
+      • Axios for API calls
+    end note
+}
+
+' Relationships
+
+Register --> UseAuth
+Login --> UseAuth
+UseAuth --> AuthContext
+AuthContext --> AuthReducer
+UseAuth --> AuthService
+AuthService --> ApiService
+
+Character --> UseUser
+UseUser --> UserContext
+UserContext --> UserReducer
+UseUser --> UserService
+UserService --> ApiService
+
+Marketplace --> UseMarket
+UseMarket --> MarketContext
+MarketContext --> MarketReducer
+UseMarket --> MarketService
+MarketService --> ApiService
+
+Dungeons --> UseDungeon
+UseDungeon --> DungeonContext
+DungeonContext --> DungeonReducer
+UseDungeon --> DungeonService
+DungeonService --> ApiService
+
+@enduml

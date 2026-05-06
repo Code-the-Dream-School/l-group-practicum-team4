@@ -1,0 +1,86 @@
+@startuml Market Class Diagram
+
+title ClassDiagram Market process
+skinparam classFontSize 14
+skinparam shadowing false
+
+package "App Entry" {
+  class App {
+    -express: Express
+    +use("/market", marketRouter)
+    -start()
+  }
+}
+
+package "Routes" {
+  class MarketRouter {
+    +router: Router
+    +GET / → getItems()
+    +GET /:id → getItem()
+    +POST /:id → buySellItem()
+  }
+}
+
+package "Controllers" {
+  class MarketController {
+    +getItems(req, res): Promise<void>
+    +getItem(req, res): Promise<void>
+    +buySellItem(req, res): Promise<void>
+  }
+}
+
+package "Services" {
+  class MarketService {
+    +getItems(): Promise<void>
+    +getItem(id): Promise<void>
+    +buySellItem(inventoryId, itemId, amount): Promise<void>
+  }
+  class ItemService {
+    +getItems(): Promise<item[]>
+    +getItem(): Promise<item>
+  }
+  class InventoryService {
+    +buySellItem(inventoryId, itemId, amount): Promise<void>
+  }
+  
+  note top of InventoryService
+    buySellItem():
+      - amount: negative for selling,
+      positive for buying.
+  end note
+
+}
+
+package "Models" {
+  class Item {
+    -_id: ObjectId
+    -name: String
+    -description: String
+    -type: String
+    -coinCost: Number
+    -stat: String
+    -value: Number
+    -createdAt: Date
+    -updatedAt: Date
+  }
+  class Inventory {
+    -_id: ObjectId
+    -user: ObjectId
+    -coins: Number
+    -wearables: Item[]
+    -consumables: Item[]
+    -createdAt: Date
+    -updatedAt: Date
+  }
+}
+
+' Relaciones
+App --> MarketRouter : use (mount)
+MarketRouter --> MarketController : calls
+MarketController --> MarketService : use
+MarketService --> ItemService : use
+MarketService --> InventoryService : use
+ItemService --> Item : use (Mongoose Model)
+InventoryService --> Inventory : use (Mongoose Model)
+
+@enduml

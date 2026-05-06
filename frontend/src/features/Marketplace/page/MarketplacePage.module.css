@@ -1,0 +1,116 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(145deg, #0f1a2b, #16263d);
+  color: #e6edf3;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* TITLE */
+.page h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #d4af37;
+}
+
+/* LAYOUT */
+.container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* ITEM LIST */
+.itemsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+/* ITEM CARD */
+.itemCard {
+  background: #16263d;
+  border: 1px solid #1f3a5f;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.itemCard:hover {
+  border-color: #d4af37;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+.itemName {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.itemStat {
+  font-size: 12px;
+  color: #aab6c4;
+  margin-bottom: 8px;
+}
+
+.itemPrice {
+  font-size: 13px;
+  color: #d4af37;
+}
+
+/* DETAILS PANEL */
+.details {
+  background: #16263d;
+  border: 1px solid #1f3a5f;
+  border-radius: 12px;
+  padding: 16px;
+  height: fit-content;
+}
+
+.details h2 {
+  margin-bottom: 10px;
+  color: #d4af37;
+}
+
+/* BUTTONS */
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(145deg, #d4af37, #b8962e);
+  color: #0f1a2b;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+}
+
+/* SELL BUTTON (secondary) */
+.sellButton {
+  background: linear-gradient(145deg, #3a8f5a, #2e6f46);
+  color: #e6edf3;
+}
+
+.sellButton:hover {
+  box-shadow: 0 0 10px rgba(58, 143, 90, 0.6);
+}
+
+/* EMPTY STATE */
+.empty {
+  text-align: center;
+  color: #6b7c93;
+  padding: 20px;
+}

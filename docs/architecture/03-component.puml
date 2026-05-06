@@ -1,0 +1,45 @@
+@startuml Component diagram
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam monochrome false
+
+' ================== FRONTEND ==================
+package "Frontend (React)" as Frontend {
+  component "Pages / Components" as Pages
+  component "Hooks / State Management" as Hooks
+  component "API Calls (Axios)" as APICalls
+}
+
+' ================== BACKEND ==================
+package "Backend (Node.js + Express)" as Backend {
+  component "Routes" as Routes
+  component "Controllers" as Controllers
+  component "Services" as Services
+  component "Models (Mongoose)" as Models
+}
+
+' ================== DATABASE ==================
+database "MongoDB" as MongoDB
+
+' ================== FLUJO ==================
+actor "User" as User
+
+User --> Pages : Interacts (UI)
+Pages --> Hooks : Use
+Hooks --> APICalls : Calls API
+APICalls --> Routes : HTTP Requests (JSON)
+
+Routes --> Controllers : Delegate request
+Controllers --> Services : Calls business logic
+Services --> Models : Access to the data
+Models --> MongoDB : CRUD (get, add, update, delete)
+
+MongoDB --> Models : return data
+Models --> Services : return data 
+Services --> Controllers : process & return data
+Controllers --> Routes : response
+Routes --> APICalls : JSON response
+APICalls --> Hooks : Process & update state
+Hooks --> Pages : Re-render UI
+
+@enduml

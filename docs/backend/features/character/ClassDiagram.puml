@@ -1,0 +1,86 @@
+@startuml Character Class Diagram
+
+title ClassDiagram Character process
+skinparam classFontSize 14
+skinparam shadowing false
+
+package "App Entry" {
+  class App {
+    -express: Express
+    +use("/character", characterRouter)
+    -start()
+  }
+}
+
+package "Routes" {
+  class CharacterRouter {
+    +router: Router
+    +GET / → getCharacters()
+    +GET /:id → getCharacter()
+    +POST /:id → equipUnequipItem()
+    +PATCH /:id → updateCharacter()
+  }
+}
+
+package "Controllers" {
+  class CharacterController {
+    +getCharacters(req, res): Promise<void>
+    +getCharacter(req, res): Promise<void>
+    +equipUnequipItem(req, res): Promise<void>
+  }
+}
+
+package "Services" {
+  class CharacterService {
+    +getItems(): Promise<void>
+    +getItem(id): Promise<void>
+    +equipUnequipItem(characterId, itemId): Promise<void>
+  }
+  class ItemService {
+    +getItem(): Promise<item>
+  }
+  class InventoryService {
+    +buySellItem(inventoryId, itemId, amount): Promise<void>
+  }
+  
+  note right of CharacterService
+    equipUnequipItem():
+      - Equip/Unequip move the item from inventory
+        to character and viceversa.
+  end note
+
+}
+
+package "Models" {
+  class Item {
+    -_id: ObjectId
+    -name: String
+    -description: String
+    -type: String
+    -coinCost: Number
+    -stat: String
+    -value: Number
+    -createdAt: Date
+    -updatedAt: Date
+  }
+  class Inventory {
+    -_id: ObjectId
+    -user: ObjectId
+    -coins: Number
+    -wearables: Item[]
+    -consumables: Item[]
+    -createdAt: Date
+    -updatedAt: Date
+  }
+}
+
+' Relaciones
+App --> CharacterRouter : use (mount)
+CharacterRouter --> CharacterController : calls
+CharacterController --> CharacterService : use
+CharacterService --> ItemService : use
+CharacterService --> InventoryService : use
+ItemService --> Item : use (Mongoose Model)
+InventoryService --> Inventory : use (Mongoose Model)
+
+@enduml

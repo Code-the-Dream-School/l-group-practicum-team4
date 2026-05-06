@@ -1,0 +1,122 @@
+@startuml Auth Class Diagram
+skinparam classFontSize 14
+skinparam shadowing false
+
+package "App Entry" {
+  class App {
+    -express: Express
+    +use(path, authRouter)
+    -start()
+  }
+}
+
+package "Routes" {
+  class AuthRouter {
+    +router: Router
+    +POST /register → register()
+    +POST /login → login()
+  }
+}
+
+package "Controllers" {
+  class AuthController {
+    -userService: UserService
+    +register(req: Request, res: Response): Promise<void>
+    +login(req: Request, res: Response): Promise<void>
+  }
+  
+  note left of AuthController
+    register():
+      - validate data
+      - call AuthService.register()
+      - return response
+    login():
+      - validate data
+      - call AuthService.login()
+      - return response
+  end note
+}
+
+package "Services" {
+  class AuthService{
+    +register(): Promise<{user, token}>
+    +login(): Promise<{user, token}>
+  }
+  class UserService {
+    +addUser(data: Object): Promise<User>
+    +getUserBy(data: Object): Promise<User>
+  }
+  class InventoryService {
+    +addInventory(data: Object): Promise<Inventory>
+  }
+  class CharacterService {
+    +addCharacter(data: Object): Promise<Character>
+  }
+  
+  note left of AuthService
+    register():
+      - call UserService.addUser()
+      - return response
+    login():
+      - call UserService.getUserBy()
+      - check credentials
+      - return response
+  end note
+  
+  note left of UserService
+    addUser():
+      - create user
+      - create token
+      - create Inventory
+      - create character
+      - return user and token
+  end note
+}
+
+package "Models" {
+  class User {
+    -_id: ObjectId
+    -name: String
+    -email: String
+    -password: String
+    -createdAt: Date
+    -updatedAt: Date
+    ..
+    +pre("save") : hashPassword()
+    +createJWT(): String
+    +checkPassword(candidate: String): Promise<Boolean>
+  }
+  class Inventory{
+    -_id: ObjectId
+    -user: ObjectId
+    -coins: Number
+    -wearables: Item[]
+    -consumables: Item[]
+    -createdAt: Date
+    -updatedAt: Date
+  }
+  class Character{
+    -_id: ObjectId
+    -user: ObjectId
+    -name: String
+    -health: Number
+    -attack: Number
+    -defense: Number
+    -speed: Number
+    -createdAt: Date
+    -updatedAt: Date
+  }
+}
+
+' Relaciones
+App "1" --> "1" AuthRouter : use (mount)
+AuthRouter "1" --> "1" AuthController : calls
+AuthController "1" --> "1" AuthService : use
+AuthService "1" --> "1" UserService : use
+UserService "1" --> "1" User : use (Mongoose Model)
+UserService "1" --> "1" InventoryService : use
+UserService "1" --> "1" CharacterService : use
+InventoryService "1" --> "1" Inventory : use (Mongoose Model)
+CharacterService "1" --> "1" Character : use (Mongoose Model)
+
+@enduml

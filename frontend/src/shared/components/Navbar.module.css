@@ -1,0 +1,73 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  background: #5A2A1F; 
+  border: 4px solid #6b4a2f;
+  color: #e5e7eb;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Logo */
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #facc15;
+}
+
+/* Links */
+.links {
+  display: flex;
+  gap: 24px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #ffd27f;
+  font-size: 20px;
+  transition: 0.2s;
+}
+
+.links a:hover {
+  color: #facc15;
+}
+
+/* Right side */
+.user {
+  display: flex;
+  gap: 16px;
+  font-size: 20px;
+  color: #ffb347
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .links {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .links a {
+    font-size: 14px;
+  }
+
+  .user {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+}
