@@ -1,7 +1,7 @@
-require('dotenv').config();
-const app = require('./src/app');
-const { connectDB } = require('./db/dbconnect');
-const UserModel = require('./models/User');
+require("dotenv").config();
+const app = require("./src/app");
+const { connectDB } = require("./db/dbconnect");
+const UserModel = require("./src/models/User");
 
 const PORT = process.env.PORT || 8080;
 const MongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/test";
@@ -23,7 +23,7 @@ app.get("/createusertest", async (req, res) => {
 
   try {
     const newUser = await UserModel.create(userJSON);
-    res.json(newUser)
+    res.json(newUser);
   } catch (error) {
     console.log(error);
     res.json("Could not create new user");
@@ -32,15 +32,15 @@ app.get("/createusertest", async (req, res) => {
 
 // Start App
 const start = async () => {
-    try {
-        await connectDB(MongoURI);
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
-        });
-    } catch (error) {
-        console.log("Sever failed to start");
-        console.log(error);
-    }
+  try {
+    await connectDB(MongoURI);
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.log("Sever failed to start");
+    console.log(error);
+  }
 };
 
 start();
