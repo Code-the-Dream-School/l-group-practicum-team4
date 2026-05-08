@@ -41,9 +41,25 @@ const updateCharacter = async (req, res) => {
   res.status(200).json({ char });
 };
 
+const deleteCharacter = async (req, res) => {
+  const {
+    user: { userId },
+    params: { id: charId }
+  } = req;
+  const char = await Character.findByIdAndDelete({
+    _id: charId,
+    createdBy: userId
+  });
+  if (!char) {
+    res.status(404).json({ message: "Character not found" });
+  }
+  res.status(200).json({ message: "Character was successfully deleted" });
+};
+
 module.exports = {
   getAllCharacters,
   getCharacter,
   createCharacter,
-  updateCharacter
+  updateCharacter,
+  deleteCharacter
 };

@@ -5,10 +5,15 @@ const {
   getAllCharacters,
   getCharacter,
   createCharacter,
-  updateCharacter
+  updateCharacter,
+  deleteCharacter
 } = require("../controllers/character");
 
 router.route("/").get(getAllCharacters).post(createCharacter);
-router.route("/:id").get(getCharacter).patch(updateCharacter);
+router
+  .route("/:id")
+  .get(getCharacter)
+  .patch(updateCharacter)
+  .delete(deleteCharacter);
 
 module.exports = router;
