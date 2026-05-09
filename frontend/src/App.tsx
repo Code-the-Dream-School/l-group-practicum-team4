@@ -3,20 +3,19 @@ import { Toaster } from "react-hot-toast";
 import styles from "./App.module.css";
 
 import AboutPage from './features/About/AboutPage';
-import CharacterPage from './features/Character/page/CharacterPage';
-
-// import MarketplacePage from './features/Marketplace/page/MarketplacePage';
+import { MarketProvider } from "./features/Marketplace/contexts/MarketContext";
 import { DungeonProvider } from "./features/Dungeon/contexts/dungeonContext";
 
 import Header from "./shared/components/Header";
 import Footer from "./shared/components/Footer";
-import CharacterPage from "./features/Character/page/CharacterPage";
-import MarketplacePage from "./features/Marketplace/page/MarketplacePage";
+
+import MarketplacePage from "./features/Marketplace/pages/MarketplacePage";
 import DungeonPage from "./features/Dungeon/pages/dungeonPage";
 
 function App() {
 	return (
 		<DungeonProvider>
+		<MarketProvider>
 			<div className={styles["app-container"]}>
 				<Header title="DUNGEON BATTLE" />
 				<div className={styles["route-content"]}>
@@ -53,6 +52,7 @@ function App() {
 					}}
 				/>
 			</div>
+		</MarketProvider>
 		</DungeonProvider>
 	);
 }
