@@ -73,10 +73,14 @@ export const EnemyGenerator = (
 
 		placedEnemies.push({
 			...enemyTemplate,
-			id: index,
-			x: tile.x * 32 + 16, // centro del tile
+			x: tile.x * 32 + 16,
 			y: tile.y * 32 + 16,
 			radius: 14,
+		} as Enemy & {
+			id: number;
+			x: number;
+			y: number;
+			radius: number;
 		});
 	});
 

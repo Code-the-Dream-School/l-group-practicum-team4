@@ -1,4 +1,10 @@
-import { createContext, useReducer, useEffect, type ReactNode } from "react";
+import {
+	createContext,
+	useReducer,
+	useEffect,
+	useRef,
+	type ReactNode,
+} from "react";
 import { reducer, initialStates, actions } from "../reducer/dungeonReducer";
 import { mapGenerator, EnemyGenerator } from "../services/drawService";
 import type { Player, Enemy } from "../../../shared/models/models";
@@ -10,11 +16,14 @@ interface DungeonContextType {
 	setMap: (map: number[][]) => void;
 	setPlayer: (updates: Partial<Player>) => void;
 	setEnemy: (updates: Partial<Enemy> | null) => void;
+	setEnemies: (updates: Enemy[] | undefined) => void;
 }
 const DungeonContext = createContext<DungeonContextType | undefined>(undefined);
 
 export function DungeonProvider({ children }: { children: ReactNode }) {
 	const [state, dispatch] = useReducer(reducer, initialStates);
+
+	const enemiesRef = useRef(state.enemies);
 
 	const isLoading = (value: boolean) => {
 		dispatch({
@@ -51,6 +60,10 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		});
 	};
 
+	const setEnemies = (updates: Enemy[] | undefined) => {
+		dispatch({ type: actions.SET_ENEMIES, payload: updates });
+	};
+
 	useEffect(() => {
 		const fetchData = async () => {
 			if (!state.seed) return;
@@ -65,14 +78,14 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 				y: playerY * TILE_SIZE + TILE_SIZE / 2,
 			});
 
-			if (state.enemies && state.enemies.length > 0) {
+			if (enemiesRef.current && enemiesRef.current.length > 0) {
 				const placedEnemies = EnemyGenerator(
 					map,
 					state.seed,
-					state.enemies,
+					enemiesRef.current,
 				);
 				placedEnemies.forEach((placedEnemy) => {
-					state.enemies?.map((enemy) => {
+					enemiesRef.current?.map((enemy) => {
 						if (enemy.name == placedEnemy.name) {
 							enemy.x = placedEnemy.x;
 							enemy.y = placedEnemy.y;
@@ -85,7 +98,7 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		};
 
 		fetchData();
-	}, [state.seed, state.enemies]);
+	}, [state.seed, enemiesRef]);
 
 	return (
 		<DungeonContext.Provider
@@ -96,6 +109,7 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 				setMap,
 				setPlayer,
 				setEnemy,
+				setEnemies,
 			}}
 		>
 			{children}

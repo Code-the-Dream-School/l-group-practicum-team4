@@ -2,14 +2,14 @@ import { Routes, Route } from "react-router";
 import { Toaster } from "react-hot-toast";
 import styles from "./App.module.css";
 
-import AboutPage from './features/About/AboutPage';
+import AboutPage from "./features/About/AboutPage";
 
 import { MarketProvider } from "./features/Marketplace/contexts/MarketContext";
 import { DungeonProvider } from "./features/Dungeon/contexts/dungeonContext";
 
 import Header from "./shared/components/Header";
 import Footer from "./shared/components/Footer";
-import MarketplacePage from "./features/Marketplace/pages/MarketplacePage";
+import MarketplacePage from "./features/Marketplace/page/MarketplacePage";
 import DungeonPage from "./features/Dungeon/pages/dungeonPage";
 
 function App() {
@@ -23,11 +23,11 @@ function App() {
 						<Route path="/about" element={<AboutPage />} />
 						<Route path="/dungeon" element={<DungeonPage />} />
 						<Route path="/market" element={<MarketplacePage />} />
-
 					</Routes>
 				</div>
 				<Footer />
 				<Toaster
+					toasterId="main"
 					position="bottom-right"
 					toastOptions={{
 						duration: 4000,

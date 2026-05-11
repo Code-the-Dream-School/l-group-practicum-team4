@@ -1,0 +1,11 @@
+.container {
+	width: 140px;
+	height: 4px;
+}
+
+.barFill {
+	height: 100%;
+	background-color: var(--Green);
+	transition: width 0.1s linear;
+	border-radius: 9999px;
+}
