@@ -9,7 +9,7 @@ export class Character {
 	speed: number;
 	gear: CharacterGear;
 	inventory: Item[];
-
+	coins!: number;
 	timeBonuses: TimeBonus[] = [];
 
 	private onBonusesChanged?: () => void;
@@ -143,4 +143,6 @@ export interface Item {
 	type: string;
 	stat: string;
 	value: number;
+	coinCost: number;
+	inventoryId: string; // for not duplication
 }
