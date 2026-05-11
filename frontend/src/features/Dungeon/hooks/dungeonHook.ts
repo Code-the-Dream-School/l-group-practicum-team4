@@ -8,7 +8,8 @@ import type {
 } from "../../../shared/models/models";
 
 export const useDungeon = () => {
-	const { state, setTileset, setPlayer, setEnemy } = useDungeonContext();
+	const { state, setTileset, setPlayer, setEnemy, setEnemies } =
+		useDungeonContext();
 
 	const EquipItem = async (item: Item) => {
 		try {
@@ -36,7 +37,9 @@ export const useDungeon = () => {
 					newGear.weapon = item;
 					break;
 				default:
-					toast.error("Item type no equipable.");
+					toast.error("Item type no equipable.", {
+						toasterId: "main",
+					});
 					return;
 			}
 
@@ -51,12 +54,16 @@ export const useDungeon = () => {
 				inventory: newInventory,
 			});
 
-			toast.success(`${item.name} was equiped.`);
+			toast.success(`${item.name} was equiped.`, {
+				toasterId: "main",
+			});
 		} catch (e) {
 			const errorMessage =
 				e instanceof Error ? e.message : "Unexpected error.";
 
-			toast.error(errorMessage);
+			toast.error(errorMessage, {
+				toasterId: "main",
+			});
 			console.error(e);
 		}
 	};
@@ -80,7 +87,9 @@ export const useDungeon = () => {
 					newGear.weapon = undefined;
 					break;
 				default:
-					toast.error("Unrecognized item type.");
+					toast.error("Unrecognized item type.", {
+						toasterId: "main",
+					});
 					return;
 			}
 
@@ -90,12 +99,16 @@ export const useDungeon = () => {
 				inventory: [...state.player.inventory, item],
 			});
 
-			toast.success(`${item.name} was unequiped.`);
+			toast.success(`${item.name} was unequiped.`, {
+				toasterId: "main",
+			});
 		} catch (e) {
 			const errorMessage =
 				e instanceof Error ? e.message : "Unexpected error";
 
-			toast.error(errorMessage);
+			toast.error(errorMessage, {
+				toasterId: "main",
+			});
 			console.error(e);
 		}
 	};
@@ -117,7 +130,9 @@ export const useDungeon = () => {
 			) {
 				state.player.applyTemporaryBonus(item.stat, item.value, 120000);
 			} else {
-				toast.error(`"${item.stat}" stat is not consumable.`);
+				toast.error(`"${item.stat}" stat is not consumable.`, {
+					toasterId: "main",
+				});
 				return;
 			}
 
@@ -128,12 +143,17 @@ export const useDungeon = () => {
 
 			toast.success(
 				`¡${item.name} consumido! (+${item.value} ${item.stat})`,
+				{
+					toasterId: "main",
+				},
 			);
 		} catch (e) {
 			const errorMessage =
 				e instanceof Error ? e.message : "Unexpected error";
 
-			toast.error(errorMessage);
+			toast.error(errorMessage, {
+				toasterId: "main",
+			});
 			console.error(e);
 		}
 	};
@@ -143,6 +163,7 @@ export const useDungeon = () => {
 		setTileset,
 		setPlayer,
 		setEnemy,
+		setEnemies,
 		MapDraw,
 		PlayerDraw,
 		EnemyDraw,

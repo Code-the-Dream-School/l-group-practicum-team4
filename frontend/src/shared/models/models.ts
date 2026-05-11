@@ -33,16 +33,32 @@ export class Character {
 		return this.getGearBonus("health") + this.getTemporaryBonus("health");
 	}
 
+	get healthTotal() {
+		return this.health + this.healthPlus;
+	}
+
 	get attackPlus() {
 		return this.getGearBonus("attack") + this.getTemporaryBonus("attack");
+	}
+
+	get attackTotal() {
+		return this.attack + this.attackPlus;
 	}
 
 	get defensePlus() {
 		return this.getGearBonus("defense") + this.getTemporaryBonus("defense");
 	}
 
+	get defenseTotal() {
+		return this.defense + this.defensePlus;
+	}
+
 	get speedPlus() {
 		return this.getGearBonus("speed") + this.getTemporaryBonus("speed");
+	}
+
+	get speedTotal() {
+		return this.speed + this.speedPlus;
 	}
 
 	get healthBonus() {
@@ -127,7 +143,14 @@ export interface TimeBonus {
 
 export class Player extends Character {}
 
-export class Enemy extends Character {}
+export class Enemy extends Character {
+	id: number;
+
+	constructor(data: Partial<Enemy>) {
+		super(data);
+		this.id = data.id ?? 0;
+	}
+}
 
 export interface CharacterGear {
 	helmet?: Item;

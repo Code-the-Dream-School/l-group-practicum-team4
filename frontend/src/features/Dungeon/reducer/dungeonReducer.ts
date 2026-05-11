@@ -95,6 +95,7 @@ export const initialStates: State = {
 	}),
 	enemies: [
 		new Enemy({
+			id: 1,
 			x: 0,
 			y: 0,
 			name: "Ciclop",
@@ -116,6 +117,7 @@ export const initialStates: State = {
 			},
 		}),
 		new Enemy({
+			id: 2,
 			x: 0,
 			y: 0,
 			name: "Spider",
@@ -128,6 +130,7 @@ export const initialStates: State = {
 			gear: {},
 		}),
 		new Enemy({
+			id: 3,
 			x: 0,
 			y: 0,
 			name: "Ghost",
@@ -158,6 +161,7 @@ export const actions = {
 	SET_MAP: "set_map",
 	SET_PLAYER: "set_player",
 	SET_ENEMY: "set_enemy",
+	SET_ENEMIES: "set_enemies",
 } as const;
 
 export type Action =
@@ -171,6 +175,10 @@ export type Action =
 	| {
 			type: typeof actions.SET_ENEMY;
 			payload: Partial<Enemy> | null;
+	  }
+	| {
+			type: typeof actions.SET_ENEMIES;
+			payload: Enemy[] | undefined;
 	  };
 
 export function reducer(state: State = initialStates, action: Action): State {
@@ -201,6 +209,8 @@ export function reducer(state: State = initialStates, action: Action): State {
 						})
 					: null,
 			};
+		case actions.SET_ENEMIES:
+			return { ...state, enemies: action.payload };
 		default:
 			return state;
 	}

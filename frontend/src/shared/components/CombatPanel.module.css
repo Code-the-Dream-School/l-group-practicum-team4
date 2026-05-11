@@ -1,0 +1,158 @@
+.panel-container {
+	position: relative;
+	padding: 20px;
+}
+
+.player-avatar {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 70px;
+	height: 70px;
+	border-radius: 50%;
+	border: 8px solid var(--bg-basic);
+	object-fit: cover;
+	background-color: var(--primary-color);
+	align-content: center;
+	& h2 {
+		justify-self: center;
+	}
+}
+
+.enemy-avatar {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	width: 70px;
+	height: 70px;
+	border-radius: 50%;
+	border: 8px solid var(--bg-basic);
+	object-fit: cover;
+	background-color: var(--primary-color);
+	align-content: center;
+	& h2 {
+		justify-self: center;
+	}
+}
+
+.container {
+	margin: 0px;
+	margin-top: 10px;
+
+	display: flex;
+	flex-direction: column;
+	background-color: var(--bg-color);
+	border-radius: 0px 0px 24px 24px;
+	border: 8px solid var(--bg-basic);
+}
+
+.header {
+	padding: 0px 60px;
+	display: flex;
+	justify-content: space-between;
+	background-color: var(--bg-basic);
+	& h1 {
+		margin: -4px 0px;
+		font-size: 40px;
+		color: var(--primary-color);
+	}
+	& h2 {
+		margin: 10px 0px;
+		color: var(--text-color);
+	}
+}
+
+.actions {
+	display: flex;
+	justify-content: space-between;
+
+	& button {
+		padding: 8px 20px;
+		margin: 5px 10px;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		font-family: "Fredoka";
+		font-size: 20px;
+		border-radius: 12px;
+		background-color: var(--bg-basic);
+	}
+	& button:hover {
+		background-color: var(--primary-color);
+	}
+}
+.actions-player {
+	display: flex;
+	flex-direction: column;
+}
+
+.actions-enemy {
+	cursor: auto;
+	& button:hover {
+		background-color: var(--bg-basic);
+		cursor: auto;
+	}
+}
+
+.checkbox {
+	padding: 8px 20px;
+	margin: 5px 10px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-family: "Fredoka";
+	font-size: 20px;
+	border-radius: 12px;
+	background-color: var(--bg-basic);
+
+	user-select: none;
+	& input {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+	& span {
+		cursor: pointer;
+	}
+	& label {
+		display: flex;
+		gap: 10px;
+		justify-content: center;
+		align-items: center;
+	}
+}
+
+.checkbox:hover {
+	background-color: var(--primary-color);
+}
+
+.slider {
+	position: relative;
+	width: 35px;
+	height: 6px;
+	background-color: var(--text-color);
+	border-radius: 50px;
+	transition: all 0.3s ease;
+}
+
+.slider::before {
+	content: "";
+	position: absolute;
+	top: -6px;
+	left: 0px;
+	width: 18px;
+	height: 18px;
+	background-color: var(--text-color);
+	border-radius: 50%;
+	transition: all 0.3s ease;
+}
+
+.checkbox input:checked + .slider {
+	background-color: var(--Green);
+}
+
+.checkbox input:checked + .slider::before {
+	transform: translateX(18px);
+	background-color: var(--Green);
+}
