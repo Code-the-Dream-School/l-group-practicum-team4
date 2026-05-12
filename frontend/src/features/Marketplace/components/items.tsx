@@ -1,4 +1,4 @@
-import type { Item } from "../../../shared/models/item"
+import type { Item } from "../../../shared/models/models"
 
 export const items: Item[] = [
   {
@@ -7,7 +7,8 @@ export const items: Item[] = [
     description: "Basic sword",
     type: "weapon",
     stat: "attack",
-    value: 100,
+    value: 2,
+    coinCost: 100,
   },
   {
     id: 2,
@@ -15,7 +16,8 @@ export const items: Item[] = [
     description: "Heavy sword",
     type: "weapon",
     stat: "attack",
-    value: 80,
+    value: 5,
+    coinCost: 80,
   },
   {
     id: 3,
@@ -23,7 +25,8 @@ export const items: Item[] = [
     description: "Fast weapon",
     type: "weapon",
     stat: "attack",
-    value: 50,
+    value: 1,
+    coinCost: 100,
   },
   {
     id: 4,
@@ -32,6 +35,7 @@ export const items: Item[] = [
     type: "weapon",
     stat: "attack",
     value: 70,
+    coinCost: 70,
   },
   {
     id: 5,
@@ -40,6 +44,7 @@ export const items: Item[] = [
     type: "weapon",
     stat: "attack",
     value: 90,
+    coinCost: 90,
   },
   {
     id: 6,
@@ -48,6 +53,7 @@ export const items: Item[] = [
     type: "weapon",
     stat: "attack",
     value: 100,
+    coinCost: 100,
   },
   {
     id: 7,
@@ -55,7 +61,8 @@ export const items: Item[] = [
     description: "Basic shield",
     type: "shield",
     stat: "defense",
-    value: 50,
+    value: 5,
+    coinCost: 50,
   },
   {
     id: 8,
@@ -63,7 +70,8 @@ export const items: Item[] = [
     description: "Heavy shield",
     type: "shield",
     stat: "defense",
-    value: 100,
+    value: 10,
+    coinCost: 100,
   },
   {
     id: 9,
@@ -71,7 +79,8 @@ export const items: Item[] = [
     description: "Heavy armor",
     type: "armor",
     stat: "defense",
-    value: 100,
+    value: 5,
+    coinCost: 100,
   },
   {
     id: 10,
@@ -80,6 +89,7 @@ export const items: Item[] = [
     type: "helmet",
     stat: "defense",
     value: 100,
+    coinCost: 100,
   },
   {
     id: 11,
@@ -87,7 +97,8 @@ export const items: Item[] = [
     description: "Strong helmet",
     type: "helmet",
     stat: "defense",
-    value: 80,
+    value: 5,
+    coinCost: 80,
   },
   {
     id: 12,
@@ -95,6 +106,7 @@ export const items: Item[] = [
     description: "Restores defense temporarily",
     type: "potion",
     stat: "defense",
-    value: 30,
+    value: 20,
+    coinCost: 30,
   },
 ];

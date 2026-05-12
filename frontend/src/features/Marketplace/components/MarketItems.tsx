@@ -17,7 +17,7 @@ const MarketItems = ({tileset, items, onBuy, onSell, mode}: Props) => {
     <div className={styles.marketItems}>  
       {items.map((item) => (
         <div 
-          key = {item.id} 
+          key = {item.inventoryId} 
           className={styles.marketItem}
           onClick={() => (mode === "buy" ? onBuy(item) : onSell(item))}> 
 
@@ -26,7 +26,7 @@ const MarketItems = ({tileset, items, onBuy, onSell, mode}: Props) => {
             size={32}
             itemName={item.name}/>
           <div className={styles.name}>{item.name}</div>
-          <div className={styles.price}>Price:{item.value} </div>
+          <div className={styles.price}>Price:{item.coinCost} </div>
         </div>
       ))}     
     </div>
