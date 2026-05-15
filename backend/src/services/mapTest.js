@@ -1,7 +1,9 @@
+// just a visual dev tool to see map generation form the backend not a proper test.
+
 const { generateMap } = require("./mapGenerator");
 
 const seed = Math.floor(Math.random() * 999999);
-const map = generateMap(200, 30, seed); // use this to change the canvas dimensions
+const map = generateMap(30, 30, seed); // use this to change the canvas dimensions
 
 map.tiles.forEach((row) => {
   console.log(

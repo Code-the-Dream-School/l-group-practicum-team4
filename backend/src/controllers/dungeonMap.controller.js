@@ -1,22 +1,33 @@
 const Dungeon = require("../models/dungeonMap");
 const { generateMap } = require("../services/mapGenerator");
 
-// Generate and save a new dungeon
 const generateDungeon = async (req, res) => {
   try {
-    const { width = 30, height = 30, level = 1 } = req.body;
+    const { width = 30, height = 30, level = 1 } = req.query;
     const seed = Math.floor(Math.random() * 999999);
-    const { tiles } = generateMap(width, height, seed);
+    const { tiles } = generateMap(Number(width), Number(height), seed);
+
+    // Count objects
+    const flatTiles = tiles.flat();
+    const enemySpawnCount = flatTiles.filter(
+      (t) => t.object === "enemy_spawn",
+    ).length;
+    const chestCount = flatTiles.filter((t) => t.object === "chest").length;
+    const trapCount = flatTiles.filter((t) => t.object === "trap").length;
 
     const dungeon = await Dungeon.create({
       seed,
-      width,
-      height,
+      width: Number(width),
+      height: Number(height),
       level,
       tiles,
     });
 
-    res.status(201).json({ success: true, dungeon });
+    res.status(201).json({
+      success: true,
+      dungeon,
+      stats: { enemySpawnCount, chestCount, trapCount },
+    });
   } catch (e) {
     console.log(e);
     res
