@@ -4,10 +4,12 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 
-const helloRoutes = require('./routes/hello.routes');
+const authRoutes = require("./routes/auth");
 const characterRoutes = require("./routes/character");
 const itemRoutes = require("./routes/item");
 const dungeonRoutes = require("./routes/dungeonMap.routes");
+
+const authMiddleware = require("./middleware/authentication");
 
 const app = express();
 
@@ -24,8 +26,8 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-app.use('/api/hello', helloRoutes);
-app.use("/api/character", characterRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/character", authMiddleware, characterRoutes);
 app.use("/api/item", itemRoutes);
 app.use("/api/dungeon", dungeonRoutes);
 

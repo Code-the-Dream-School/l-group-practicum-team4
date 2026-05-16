@@ -1,26 +1,65 @@
 const Character = require("../models/Character");
 
-const createTestChar = async (req, res) => {
-  const charJSON = {
-    name: "bob",
-    health: 10,
-    attack: 2,
-    defense: 3,
-    speed: 1,
-    wearables: []
-  };
-  try {
-    const newCharacter = await Character.create(charJSON);
-    res.json(newCharacter);
-  } catch (e) {
-    console.log(e);
-    res.json("Could not create new character");
+const getAllCharacters = async (req, res) => {
+  const chars = await Character.find({ createdBy: req.user.userId }).sort(
+    "createdAt"
+  );
+  res.status(200).json({ chars, count: chars.length });
+};
+
+const getCharacter = async (req, res) => {
+  const {
+    user: { userId },
+    params: { id: charId }
+  } = req;
+  const char = await Character.findOne({ _id: charId, createdBy: userId });
+  if (!char) {
+    res.status(404).json({ message: "Character not found" });
   }
+  res.status(200).json({ char });
 };
 
-const getTestChar = async (req, res) => {
-  const charData = await Character.find();
-  res.json(charData);
+const createCharacter = async (req, res) => {
+  req.body.createdBy = req.user.userId;
+  const char = await Character.create(req.body);
+  res.status(201).json({ char });
 };
 
-module.exports = { createTestChar, getTestChar };
+const updateCharacter = async (req, res) => {
+  const {
+    user: { userId },
+    params: { id: charId }
+  } = req;
+  const char = await Character.findOneAndUpdate(
+    { _id: charId, createdBy: userId },
+    req.body,
+    { returnDocument: "after", runValidators: true }
+  );
+  if (!char) {
+    res.status(404).json({ message: "Character not found" });
+  }
+  res.status(200).json({ char });
+};
+
+const deleteCharacter = async (req, res) => {
+  const {
+    user: { userId },
+    params: { id: charId }
+  } = req;
+  const char = await Character.findByIdAndDelete({
+    _id: charId,
+    createdBy: userId
+  });
+  if (!char) {
+    res.status(404).json({ message: "Character not found" });
+  }
+  res.status(200).json({ message: "Character was successfully deleted" });
+};
+
+module.exports = {
+  getAllCharacters,
+  getCharacter,
+  createCharacter,
+  updateCharacter,
+  deleteCharacter
+};

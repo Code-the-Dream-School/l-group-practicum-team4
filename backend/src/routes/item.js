@@ -1,9 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
-const { createTestItem, getTestItem } = require("../controllers/item");
+const {
+  getAllItems,
+  getItem,
+  createItem,
+  updateItem,
+  deleteItem
+} = require("../controllers/item");
 
-router.route("/makeTest").post(createTestItem);
-router.route("/getTest").get(getTestItem);
+router.route("/").get(getAllItems).post(createItem);
+router.route("/:id").get(getItem).patch(updateItem).delete(deleteItem);
 
 module.exports = router;

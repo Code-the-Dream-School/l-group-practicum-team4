@@ -1,25 +1,49 @@
 const Item = require("../models/Item");
 
-const createTestItem = async (req, res) => {
-  const itemJSON = {
-    name: "test",
-    description: "test item",
-    coinCost: 1,
-    stat: "health",
-    value: 2
-  };
-  try {
-    const newItem = await Item.create(itemJSON);
-    res.json(newItem);
-  } catch (e) {
-    console.log(e);
-    res.json("Could not create new item");
+const getAllItems = async (req, res) => {
+  const items = await Item.find();
+  res.status(200).json({ items, count: items.lenght });
+};
+
+const getItem = async (req, res) => {
+  const {
+    params: { id: itemId }
+  } = req;
+  const item = await Item.findOne({ _id: itemId });
+  if (!item) {
+    res.status(404).json({ message: "Item not found" });
   }
+  res.status(200).json({ item });
 };
 
-const getTestItem = async (req, res) => {
-  const itemData = await Item.find();
-  res.json(itemData);
+const createItem = async (req, res) => {
+  const item = await Item.create(req.body);
+  res.status(201).json({ item });
 };
 
-module.exports = { createTestItem, getTestItem };
+const updateItem = async (req, res) => {
+  const {
+    params: { id: itemId }
+  } = req;
+  const item = await Item.findOneAndUpdate({ _id: itemId }, req.body, {
+    returnDocument: "after",
+    runValidators: true
+  });
+  if (!item) {
+    res.status(404).json({ message: "Item not found" });
+  }
+  res.status(200).json({ item });
+};
+
+const deleteItem = async (req, res) => {
+  const {
+    params: { id: itemId }
+  } = req;
+  const item = await Item.findOneAndDelete({ _id: itemId });
+  if (!item) {
+    res.status(404).json({ message: "Item not found" });
+  }
+  res.status(200).json({ message: "Item successfully deleted" });
+};
+
+module.exports = { getAllItems, getItem, createItem, updateItem, deleteItem };
