@@ -5,7 +5,7 @@ const {
   getDungeon,
 } = require("../controllers/dungeonMap.controller");
 
-router.route("/generate").post(generateDungeon);
+router.route("/generate").get(generateDungeon);
 router.route("/:id").get(getDungeon);
 
 module.exports = router;
