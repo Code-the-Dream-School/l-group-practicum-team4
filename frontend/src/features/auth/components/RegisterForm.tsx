@@ -55,7 +55,7 @@ export default function RegisterForm() {
         <form onSubmit={handleSubmit} className={styles.form}>
           <input
             className={styles.input}
-            name="username"
+            name="name"
             placeholder="Username"
             value={form.name}
             onChange={handleChange}
