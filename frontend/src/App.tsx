@@ -2,15 +2,19 @@ import { Routes, Route } from "react-router";
 import { Toaster } from "react-hot-toast";
 import styles from "./App.module.css";
 
-import AboutPage from "./features/About/AboutPage";
-
 import { MarketProvider } from "./features/Marketplace/contexts/MarketContext";
 import { DungeonProvider } from "./features/Dungeon/contexts/dungeonContext";
 
 import Header from "./shared/components/Header";
 import Footer from "./shared/components/Footer";
-import MarketplacePage from "./features/Marketplace/page/MarketplacePage";
+
+import AboutPage from "./features/About/AboutPage";
+import RegisterPage from "./features/auth/pages/RegisterPage"
+import LoginPage from "./features/auth/pages/LoginPage"
 import DungeonPage from "./features/Dungeon/pages/dungeonPage";
+import MarketplacePage from "./features/Marketplace/pages/MarketplacePage";
+
+import ProtectedRoute from "./shared/components/ProtectedRoute";
 
 function App() {
 	return (
@@ -21,9 +25,23 @@ function App() {
 				<div className={styles["route-content"]}>
 					<Routes>
 						<Route path="/about" element={<AboutPage />} />
-						<Route path="/dungeon" element={<DungeonPage />} />
-						<Route path="/market" element={<MarketplacePage />} />
+						<Route path= "/register" element={<RegisterPage/>} />
+						<Route path= "/login" element={<LoginPage/>} />
+						
+							<Route path="/market" element={
+								<ProtectedRoute>
+									<MarketplacePage />
+								</ProtectedRoute> 
+								}/>
+						
+						<Route path="/dungeon" element={
+							<ProtectedRoute>
+								<DungeonPage />
+							</ProtectedRoute> 
+						} />
+						
 					</Routes>
+
 				</div>
 				<Footer />
 				<Toaster
