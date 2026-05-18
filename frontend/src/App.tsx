@@ -9,7 +9,7 @@ import { DungeonProvider } from "./features/Dungeon/contexts/dungeonContext";
 
 import Header from "./shared/components/Header";
 import Footer from "./shared/components/Footer";
-import MarketplacePage from "./features/Marketplace/page/MarketplacePage";
+import MarketplacePage from "./features/Marketplace/pages/MarketplacePage";
 import DungeonPage from "./features/Dungeon/pages/dungeonPage";
 
 function App() {
