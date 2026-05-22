@@ -6,7 +6,8 @@ const {
   getCharacter,
   createCharacter,
   updateCharacter,
-  deleteCharacter
+  deleteCharacter,
+  buySellItem
 } = require("../controllers/character");
 
 router.route("/").get(getAllCharacters).post(createCharacter);
@@ -15,5 +16,6 @@ router
   .get(getCharacter)
   .patch(updateCharacter)
   .delete(deleteCharacter);
+router.route("/buysell").patch(buySellItem);
 
 module.exports = router;
