@@ -21,6 +21,7 @@ export const useCombat = () => {
 		setPlayer,
 		setEnemy,
 		setEnemies,
+		DropItem,
 	} = useDungeon();
 
 	const timerRef = useRef<number | null>(null);
@@ -97,6 +98,62 @@ export const useCombat = () => {
 		[calculateNextActionTime],
 	);
 
+	const DropItems = useCallback(
+		(character: Player | Enemy) => {
+			if (!character) return;
+
+			for (const item of character.inventory) {
+				DropItem(character.x, character.y, item);
+			}
+			if (character.gear?.weapon)
+				DropItem(character.x, character.y, character.gear.weapon);
+			if (character.gear?.shield)
+				DropItem(character.x, character.y, character.gear.shield);
+			if (character.gear?.armor)
+				DropItem(character.x, character.y, character.gear.armor);
+			if (character.gear?.helmet)
+				DropItem(character.x, character.y, character.gear.helmet);
+		},
+		[DropItem],
+	);
+
+	const enemyDeath = useCallback(
+		(enemy: Enemy) => {
+			if (!enemy || !dungeonState.enemies) return;
+
+			//Remove enemy from list
+			const newEnemies = dungeonState.enemies.filter(
+				(e: Enemy) => e.id !== enemy.id,
+			);
+			setEnemies(newEnemies);
+
+			//Unselect enemy
+			setEnemy(null);
+
+			//Drop enemy items
+			DropItems(enemy);
+
+			toast.success(`¡${enemy.name} was defeated!`, {
+				toasterId: "main",
+			});
+		},
+		[DropItems, dungeonState.enemies, setEnemies, setEnemy],
+	);
+
+	const playerDeath = useCallback((player: Player) => {
+		if (!player) return;
+
+		//Unselect enemy
+		//setPlayer(null);
+
+		//Drop player items
+		//DropItems(player);
+
+		toast.error(`¡${player.name} was defeated!`, {
+			toasterId: "main",
+		});
+	}, []);
+
 	useEffect(() => {
 		const autoCombatLoop = () => {
 			if (!playerRef.current || !enemyRef.current) return;
@@ -122,26 +179,12 @@ export const useCombat = () => {
 
 			// Verify results
 			if (enemyRef.current.health <= 0) {
-				if (dungeonState.enemies && enemyRef.current)
-					setEnemies(
-						dungeonState.enemies.filter(
-							(enemy: Enemy) => enemy.id !== enemyRef.current.id,
-						),
-					);
-
-				setEnemy(null);
-
-				toast.success(`¡${enemyRef.current.name} was defeated!`, {
-					toasterId: "main",
-				});
+				enemyDeath(enemyRef.current);
 			}
-
 			if (playerRef.current.health <= 0) {
-				// manejar muerte del jugador
+				playerDeath(playerRef.current);
 			}
 		};
-
-		// if (timerRef.current) clearInterval(timerRef.current);
 
 		timerRef.current = setInterval(autoCombatLoop, 200);
 
@@ -150,7 +193,18 @@ export const useCombat = () => {
 				clearInterval(timerRef.current);
 			}
 		};
-	}, [action, autoCombat, enemyNAT, playerNAT, setEnemy, setPlayer]);
+	}, [
+		action,
+		autoCombat,
+		dungeonState.enemies,
+		enemyDeath,
+		enemyNAT,
+		playerDeath,
+		playerNAT,
+		setEnemies,
+		setEnemy,
+		setPlayer,
+	]);
 
 	useEffect(() => {
 		if (playerRef && enemyRef && enemyRef.current) {

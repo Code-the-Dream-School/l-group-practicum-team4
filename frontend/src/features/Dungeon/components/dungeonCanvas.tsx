@@ -1,7 +1,13 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import styles from "./dungeonCanvas.module.css";
 import { useDungeon } from "../hooks/dungeonHook";
-import type { Enemy } from "../../../shared/models/models";
+import { Enemy } from "../../../shared/models/models";
+import {
+	gameEvents,
+	type GameEvent,
+} from "../../../shared/services/gameEvents";
+import { useCollision } from "../hooks/collisionHook";
+import { type Explosion } from "../services/drawService";
 
 export default function DungeonCanvas() {
 	const {
@@ -12,7 +18,15 @@ export default function DungeonCanvas() {
 		MapDraw,
 		PlayerDraw,
 		EnemyDraw,
+		getObjectsPosition,
+		ObjectsDraw,
+		ActivateTrap,
+		DrawExplosions,
+		ActivateChest,
+		PickUpDroppedItem,
 	} = useDungeon();
+
+	const { CheckCollisions } = useCollision(dungeonState);
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationRef = useRef<number | null>(null);
@@ -23,6 +37,8 @@ export default function DungeonCanvas() {
 	const playerSpeed = 220;
 	const TILE_SIZE = 32;
 	const ORIGINAL_TILE_SIZE = 16;
+
+	const [explosions, setExplosions] = useState<Explosion[]>([]);
 
 	//#region Load tileset
 	const imgRef = useRef<HTMLImageElement>(null);
@@ -65,6 +81,7 @@ export default function DungeonCanvas() {
 
 		const offsetX = dungeonState.player.x - canvas.width / 2;
 		const offsetY = dungeonState.player.y - canvas.height / 2;
+
 		//#endregion
 
 		// Drawing map
@@ -78,6 +95,47 @@ export default function DungeonCanvas() {
 			dungeonState.tileset,
 		);
 
+		getObjectsPosition(dungeonState.map, "entrance").forEach((entrance) => {
+			ObjectsDraw(
+				ctx,
+				TILE_SIZE,
+				dungeonState.tileset as HTMLImageElement,
+				"entrance",
+				entrance.x,
+				entrance.y,
+				offsetX,
+				offsetY,
+			);
+		});
+
+		//Drawing Chests
+		dungeonState.chests?.map((chest) =>
+			ObjectsDraw(
+				ctx,
+				TILE_SIZE,
+				dungeonState.tileset as HTMLImageElement,
+				"chest",
+				chest.x,
+				chest.y,
+				offsetX,
+				offsetY,
+			),
+		);
+
+		//Drawing dropped items
+		dungeonState.droppedItems?.forEach((item) => {
+			ObjectsDraw(
+				ctx,
+				TILE_SIZE,
+				dungeonState.tileset as HTMLImageElement,
+				"item",
+				item.x,
+				item.y,
+				offsetX,
+				offsetY,
+			);
+		});
+
 		//Drawing enemies
 		if (dungeonState?.enemies && dungeonState.tileset) {
 			dungeonState.enemies.forEach((enemy: Enemy) => {
@@ -86,33 +144,75 @@ export default function DungeonCanvas() {
 					TILE_SIZE,
 					dungeonState.tileset as HTMLImageElement,
 					enemy,
-					enemy.x - offsetX - TILE_SIZE / 2,
-					enemy.y - offsetY - TILE_SIZE / 2 - 4,
+					enemy.x * TILE_SIZE - offsetX,
+					enemy.y * TILE_SIZE - offsetY,
 				);
 			});
 		}
 
+		//Drawing explosions
+		DrawExplosions(
+			ctx,
+			explosions,
+			setExplosions,
+			TILE_SIZE,
+			offsetX,
+			offsetY,
+		);
+
 		//Drawing player
 		PlayerDraw(ctx, TILE_SIZE, dungeonState.tileset, dungeonState.player);
-	}, [dungeonState, MapDraw, PlayerDraw, EnemyDraw]);
+	}, [
+		dungeonState.player,
+		dungeonState.map,
+		dungeonState.tileset,
+		dungeonState.chests,
+		dungeonState.droppedItems,
+		dungeonState.enemies,
+		MapDraw,
+		getObjectsPosition,
+		DrawExplosions,
+		explosions,
+		PlayerDraw,
+		ObjectsDraw,
+		EnemyDraw,
+	]);
 
-	//#region Collision System
-	const checkEnemyCollision = useCallback(
-		(newX: number, newY: number) => {
-			if (!dungeonState.enemies) return null;
-
-			for (const enemy of dungeonState.enemies) {
-				const distance = Math.hypot(newX - enemy.x, newY - enemy.y);
-
-				if (distance < TILE_SIZE * 1.2) {
-					return enemy;
+	const handleObjectActivated = useCallback(
+		(event: GameEvent) => {
+			switch (event.objectType) {
+				case "Enemy":
+					setEnemy(event.object);
+					break;
+				case "Trap": {
+					ActivateTrap(event.object);
+					const newExplosion: Explosion = {
+						x: event.object.x,
+						y: event.object.y,
+						life: 150,
+						maxLife: 150,
+					};
+					setExplosions((prev) => [...prev, newExplosion]);
+					break;
+				}
+				case "Chest":
+					ActivateChest(event.object);
+					break;
+				case "DroppedItem": {
+					PickUpDroppedItem(event.object);
+					break;
 				}
 			}
-			return null;
 		},
-		[dungeonState.enemies],
+		[ActivateChest, ActivateTrap, PickUpDroppedItem, setEnemy],
 	);
-	//#endregion
+
+	useEffect(() => {
+		gameEvents.on("ObjectActivated", handleObjectActivated);
+		return () => {
+			gameEvents.off("ObjectActivated", handleObjectActivated);
+		};
+	}, [handleObjectActivated]);
 
 	//#region Game Loop
 	const gameLoop = useCallback(
@@ -150,36 +250,42 @@ export default function DungeonCanvas() {
 				const newX = dungeonState.player.x + vx;
 				const newY = dungeonState.player.y + vy;
 
-				// Colisión con mapa
+				// Walls collisions
 				const tileX = Math.floor(newX / TILE_SIZE);
 				const tileY = Math.floor(newY / TILE_SIZE);
 
-				if (dungeonState.map?.[tileY]?.[tileX] === 0) {
-					const collidedEnemy = checkEnemyCollision(newX, newY);
-
-					if (collidedEnemy) {
-						setEnemy(collidedEnemy);
-					} else {
-						setEnemy(null);
+				const collision = CheckCollisions(newX, newY, TILE_SIZE);
+				if (!collision) {
+					if (dungeonState.map?.[tileY]?.[tileX].passable) {
+						//Move player
+						setPlayer({
+							x: newX,
+							y: newY,
+							facing:
+								vx > 0
+									? "Right"
+									: vx < 0
+										? "Left"
+										: dungeonState.player.facing,
+						});
 					}
 
-					setPlayer({
-						x: newX,
-						y: newY,
-						facing:
-							vx > 0
-								? "Right"
-								: vx < 0
-									? "Left"
-									: dungeonState.player.facing,
-					});
+					if (dungeonState.enemy) setEnemy(null);
 				}
 			}
 
 			draw();
 			animationRef.current = requestAnimationFrame(gameLoopRef.current!);
 		},
-		[dungeonState, setPlayer, setEnemy, draw, checkEnemyCollision],
+		[
+			dungeonState.map,
+			dungeonState.player,
+			dungeonState.enemy,
+			draw,
+			CheckCollisions,
+			setEnemy,
+			setPlayer,
+		],
 	);
 	//#endregion
 
