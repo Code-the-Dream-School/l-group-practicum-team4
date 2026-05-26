@@ -7,15 +7,15 @@ import Modal from "../components/Modal";
 import NewHeroForm from "../components/NewHeroForm";
 import HeroCard from "../components/HeroCard";
 
-import { deleteCharacter, createCharacter, getAllCharacters, updateCharacter} from "../api/api";
+import {
+  deleteCharacter,
+  createCharacter,
+  getAllCharacters,
+  updateCharacter,
+} from "../api/api";
 
 const tileset = new Image();
 tileset.src = tilesetImg;
-
-const normalizeHero = (hero: any) => ({
-  ...hero,
-  uid: hero._id || hero.id,
-});
 
 export default function HomePage() {
   const [characters, setCharacters] = useState<any[]>([]);
@@ -26,24 +26,15 @@ export default function HomePage() {
 
   const navigate = useNavigate();
 
-  const allHeroes = [
-    ...defaultHeroes.map(normalizeHero),
-    ...characters.map(normalizeHero),
-  ];
-
-// console.log("defaultHeroes:", defaultHeroes);
-// console.log("characters:", characters);
-// console.log("allHeroes:", allHeroes);
+  const allHeroes = [...defaultHeroes, ...characters];
 
   useEffect(() => {
     getAllCharacters()
       .then((data) => {
-        const normalized = data.map(normalizeHero);
+        setCharacters(data);
 
-        setCharacters(normalized);
-
-        if (normalized.length > 0) {
-          setSelectedCharacter(normalized[0]);
+        if (data.length > 0) {
+          setSelectedCharacter(data[0]);
         }
       })
       .catch(console.error)
@@ -73,21 +64,20 @@ export default function HomePage() {
           formData
         );
 
-        const normalized = normalizeHero(updated);
-
         setCharacters((prev) =>
           prev.map((c) =>
-            c.uid === normalized.uid ? normalized : c
+            (c._id || c.id) === (updated._id || updated.id)
+              ? updated
+              : c
           )
         );
 
-        setSelectedCharacter(normalized);
+        setSelectedCharacter(updated);
       } else {
         const created = await createCharacter(formData);
-        const normalized = normalizeHero(created);
 
-        setCharacters((prev) => [...prev, normalized]);
-        setSelectedCharacter(normalized);
+        setCharacters((prev) => [...prev, created]);
+        setSelectedCharacter(created);
       }
     } catch (err) {
       console.error(err);
@@ -102,11 +92,11 @@ export default function HomePage() {
       await deleteCharacter(id);
 
       setCharacters((prev) =>
-        prev.filter((c) => c.uid !== id)
+        prev.filter((c) => (c._id || c.id) !== id)
       );
 
       setSelectedCharacter((prev) =>
-        prev && prev.uid === id ? null : prev
+        prev && (prev._id || prev.id) === id ? null : prev
       );
     } catch (err) {
       console.error(err);
@@ -116,9 +106,7 @@ export default function HomePage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <h2 className={styles.title}>
-          WELCOME, ADVENTURER!
-        </h2>
+        <h2 className={styles.title}>WELCOME, ADVENTURER!</h2>
 
         <p className={styles.subtitle}>
           Choose your hero and continue your adventure.
@@ -129,28 +117,24 @@ export default function HomePage() {
         ) : (
           <>
             <div className={styles.heroGrid}>
-              {allHeroes
-                .filter(Boolean)
-                .map((character) => (
+              {allHeroes.filter(Boolean).map((character) => {
+                const uid = character._id || character.id;
+
+                return (
                   <HeroCard
-                    key={character.uid}
+                    key={uid}
                     character={character}
                     selected={
-                      selectedCharacter?.uid ===
-                      character.uid
+                      (selectedCharacter?._id || selectedCharacter?.id) ===
+                      uid
                     }
                     tileset={tileset}
-                    onSelect={() =>
-                      setSelectedCharacter(character)
-                    }
-                    onEdit={() =>
-                      handleEdit(character)
-                    }
-                    onDelete={() =>
-                      handleDelete(character.uid)
-                    }
+                    onSelect={() => setSelectedCharacter(character)}
+                    onEdit={() => handleEdit(character)}
+                    onDelete={() => handleDelete(uid)}
                   />
-                ))}
+                );
+              })}
 
               <div className={styles.createCard}>
                 <div className={styles.plus}>+</div>
@@ -158,27 +142,18 @@ export default function HomePage() {
                 <h3>Create New Hero</h3>
 
                 <p>
-                  Build your own custom adventurer for
-                  the dungeon.
+                  Build your own custom adventurer for the dungeon.
                 </p>
 
-                <button
-                  className={styles.createBtn}
-                  onClick={handleCreate}
-                >
+                <button className={styles.createBtn} onClick={handleCreate}>
                   CREATE HERO
                 </button>
               </div>
             </div>
 
-            <Modal
-              isOpen={showForm}
-              onClose={handleCloseModal}
-            >
+            <Modal isOpen={showForm} onClose={handleCloseModal}>
               <NewHeroForm
-                mode={
-                  editingCharacter ? "edit" : "create"
-                }
+                mode={editingCharacter ? "edit" : "create"}
                 initialData={editingCharacter}
                 onSubmit={handleSubmit}
                 onCancel={handleCloseModal}
@@ -188,17 +163,10 @@ export default function HomePage() {
             <div className={styles.bottomSection}>
               <div className={styles.adventureCard}>
                 <h3>CONTINUE ADVENTURE</h3>
-
                 <p>Forgotten Dungeons</p>
-
                 <span>Level 3</span>
 
-                <button
-                  className={styles.startBtn}
-                  onClick={() =>
-                    navigate("/dungeon")
-                  }
-                >
+                <button className={styles.startBtn} onClick={() => navigate("/dungeon")}>
                   CONTINUE
                 </button>
               </div>

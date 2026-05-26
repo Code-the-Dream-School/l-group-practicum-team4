@@ -1,5 +1,5 @@
 import  type { User } from "../../../shared/models/userModel"
-import { Player } from "../../../shared/models/models";
+// import { Player } from "../../../shared/models/models";
 
 export type AuthState = {
   user: User | null;
@@ -31,7 +31,10 @@ export type Action =
 
   | { type: "LOGIN_ERROR"; payload: string}
   | { type: "LOGOUT"}
- 
+  // | {
+  //   type: "SET_SELECTED_HERO";
+  //   payload: Player | null;
+  // }
 
 
 export const AuthReducer = (state: AuthState, action: Action): AuthState => {

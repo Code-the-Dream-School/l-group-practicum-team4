@@ -3,7 +3,7 @@ import type { Character } from "../../shared/models/models"
 export const newHeroes: Character[] = [
   
   {
-    "_id": "hero_sportman",
+    "id": "hero_sportman",
     "name": "Sportman",
     "type": "player",
   },
@@ -13,12 +13,12 @@ export const newHeroes: Character[] = [
     "type": "player",
   },
    {
-    "_id": "grey_hair_girl",
+    "id": "grey_hair_girl",
     "name": "Grey Hair Girl",
     "type": "player",
   },
     {
-    "_id": "brown_mage",
+    "id": "brown_mage",
     "name": "Brown Mage",
     "type": "player",
   }
