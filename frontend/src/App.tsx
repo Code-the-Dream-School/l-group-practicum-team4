@@ -9,8 +9,8 @@ import Header from "./shared/components/Header";
 import Footer from "./shared/components/Footer";
 import HomePage from "./features/Home/pages/HomePage";
 import AboutPage from "./features/About/AboutPage";
-import RegisterPage from "./features/auth/pages/RegisterPage"
-import LoginPage from "./features/auth/pages/LoginPage"
+import RegisterPage from "./features/auth/pages/RegisterPage";
+import LoginPage from "./features/auth/pages/LoginPage";
 import DungeonPage from "./features/Dungeon/pages/dungeonPage";
 import MarketplacePage from "./features/Marketplace/pages/MarketplacePage";
 
@@ -19,59 +19,65 @@ import ProtectedRoute from "./shared/components/ProtectedRoute";
 function App() {
 	return (
 		<DungeonProvider>
-		<MarketProvider>
-			<div className={styles["app-container"]}>
-				<Header title="DUNGEON BATTLE" />
-				<div className={styles["route-content"]}>
-					<Routes>
-						<Route path="/" element={<HomePage />} />
-						<Route path="/about" element={<AboutPage />} />
-						<Route path= "/register" element={<RegisterPage/>} />
-						<Route path= "/login" element={<LoginPage/>} />
-						
-							<Route path="/market" element={
-								<ProtectedRoute>
-									<MarketplacePage />
-								</ProtectedRoute> 
-								}/>
-						
-						<Route path="/dungeon" element={
-							<ProtectedRoute>
-								<DungeonPage />
-							</ProtectedRoute> 
-						} />
-						
-					</Routes>
+			<MarketProvider>
+				<div className={styles["app-container"]}>
+					<Header title="DUNGEON BATTLE" />
+					<div className={styles["route-content"]}>
+						<Routes>
+							<Route path="/about" element={<AboutPage />} />
+							<Route
+								path="/register"
+								element={<RegisterPage />}
+							/>
+							<Route path="/login" element={<LoginPage />} />
 
-				</div>
-				<Footer />
-				<Toaster
-					toasterId="main"
-					position="bottom-right"
-					toastOptions={{
-						duration: 4000,
-						style: {
-							background: "#333",
-							color: "#fff",
-							borderRadius: "10px",
-							padding: "12px 20px",
-							fontSize: "16px",
-							maxWidth: "400px",
-						},
-						error: {
+							<Route
+								path="/market"
+								element={
+									<ProtectedRoute>
+										<MarketplacePage />
+									</ProtectedRoute>
+								}
+							/>
+
+							<Route
+								path="/dungeon"
+								element={
+									<ProtectedRoute>
+										<DungeonPage />
+									</ProtectedRoute>
+								}
+							/>
+						</Routes>
+					</div>
+					<Footer />
+					<Toaster
+						toasterId="main"
+						position="bottom-right"
+						toastOptions={{
+							duration: 4000,
 							style: {
-								background: "#ef4444",
-								color: "white",
+								background: "#333",
+								color: "#fff",
+								borderRadius: "10px",
+								padding: "12px 20px",
+								fontSize: "16px",
+								maxWidth: "400px",
 							},
-							iconTheme: {
-								primary: "white",
-								secondary: "#ef4444",
+							error: {
+								style: {
+									background: "#ef4444",
+									color: "white",
+								},
+								iconTheme: {
+									primary: "white",
+									secondary: "#ef4444",
+								},
 							},
-						},
-					}}
-				/>
-			</div>
-		</MarketProvider>
+						}}
+					/>
+				</div>
+			</MarketProvider>
 		</DungeonProvider>
 	);
 }

@@ -160,12 +160,45 @@ export interface CharacterGear {
 }
 
 export interface Item {
-	id: number;
+	id: string;
 	name: string;
 	description: string;
 	type: string;
 	stat: string;
 	value: number;
 	coinCost: number;
-	inventoryId: string; // for not duplication
+	inventoryId: string;
 }
+
+export class DroppedItem {
+	x: number;
+	y: number;
+	item?: Item;
+
+	constructor(data: Partial<DroppedItem>) {
+		this.x = data.x ?? 0;
+		this.y = data.y ?? 0;
+		this.item = data.item ?? undefined;
+	}
+}
+
+export interface MapTile {
+	x: number;
+	y: number;
+	type: string;
+	passable: boolean;
+	object: string | null;
+}
+
+class TilePosition {
+	x: number;
+	y: number;
+	constructor(data: Partial<TilePosition>) {
+		this.x = data.x ?? 0;
+		this.y = data.y ?? 0;
+	}
+}
+
+export class Trap extends TilePosition {}
+
+export class Chest extends TilePosition {}

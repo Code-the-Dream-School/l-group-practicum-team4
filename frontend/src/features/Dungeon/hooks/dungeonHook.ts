@@ -1,15 +1,37 @@
 import toast from "react-hot-toast";
 import { useDungeonContext } from "../contexts/useDungeonContext";
-import { MapDraw, PlayerDraw, EnemyDraw } from "../services/drawService";
+import {
+	MapDraw,
+	PlayerDraw,
+	EnemyDraw,
+	ObjectsDraw,
+	DrawExplosions,
+} from "../services/drawService";
 import type {
 	Player,
 	Item,
 	CharacterGear,
+	Trap,
+	Chest,
 } from "../../../shared/models/models";
+import { Enemy, DroppedItem } from "../../../shared/models/models";
+import { useMarket } from "../../Marketplace/contexts/useMarket";
 
 export const useDungeon = () => {
-	const { state, setTileset, setPlayer, setEnemy, setEnemies } =
-		useDungeonContext();
+	const {
+		state,
+		setTileset,
+		setPlayer,
+		setEnemy,
+		setEnemies,
+		getObjectsPosition,
+		setTraps,
+		setChests,
+		addDroppedItem,
+		delDroppedItem,
+	} = useDungeonContext();
+
+	const { state: marketState } = useMarket();
 
 	const EquipItem = async (item: Item) => {
 		try {
@@ -158,6 +180,131 @@ export const useDungeon = () => {
 		}
 	};
 
+	const ActivateTrap = (trap: Trap) => {
+		try {
+			if (!trap) return;
+
+			//Damage
+			const newHealth = state.player.health - 20;
+			setPlayer({ health: newHealth });
+
+			//Remove trap
+			const newTraps = state.traps?.filter(
+				(item) => !(item.x === trap.x && item.y === trap.y),
+			);
+			setTraps(newTraps);
+
+			toast.error(`You have triggered a trap, taking 20 damage!`, {
+				toasterId: "main",
+			});
+		} catch (e) {
+			const errorMessage =
+				e instanceof Error ? e.message : "Unexpected error";
+
+			toast.error(errorMessage, {
+				toasterId: "main",
+			});
+			console.error(e);
+		}
+	};
+
+	const ActivateChest = async (chest: Chest) => {
+		try {
+			if (!chest) return;
+
+			//Remove chest
+			const newChests = state.chests?.filter(
+				(item) => !(item.x === chest.x && item.y === chest.y),
+			);
+			setChests(newChests);
+
+			if (Math.random() < 0.3) {
+				//Activate Mimic
+				const mimic = new Enemy({
+					id: 21,
+					x: chest.x,
+					y: chest.y,
+					name: "Mimic",
+					facing: "Right",
+					health: 50,
+					attack: 30,
+					defense: 20,
+					speed: 8,
+					gear: {},
+					inventory: [
+						{
+							id: "6a02429037f12861fcf56ab8",
+							name: "Helpful Mimic blood",
+							description: "Health potion.",
+							type: "potion",
+							stat: "health",
+							value: 20,
+							coinCost: 20,
+							inventoryId: "",
+						},
+					],
+				});
+				setEnemies([...(state.enemies ?? []), mimic]);
+
+				toast.error(`You have found a mimic!`, {
+					toasterId: "main",
+				});
+				return;
+			} else {
+				//drop a random item
+				const item = marketState.marketItems?.length
+					? marketState.marketItems[
+							Math.floor(
+								Math.random() * marketState.marketItems.length,
+							)
+						]
+					: null;
+				if (item) {
+					const droppedItem = new DroppedItem({
+						x: chest.x,
+						y: chest.y,
+						item: item,
+					});
+					addDroppedItem(droppedItem);
+				}
+
+				toast.success(`You have opened a chest!`, {
+					toasterId: "main",
+				});
+			}
+		} catch (e) {
+			const errorMessage =
+				e instanceof Error ? e.message : "Unexpected error";
+
+			toast.error(errorMessage, {
+				toasterId: "main",
+			});
+			console.error(e);
+		}
+	};
+
+	const DropItem = (x: number, y: number, item: Item) => {
+		if (!item) return;
+
+		const droppedItem = new DroppedItem({
+			x: x,
+			y: y,
+			item: item,
+		});
+		addDroppedItem(droppedItem);
+	};
+
+	const PickUpDroppedItem = async (droppedItem: DroppedItem) => {
+		const newItem = droppedItem.item;
+		if (!newItem) return;
+
+		setPlayer({
+			inventory: [...(state.player?.inventory ?? []), newItem],
+		});
+
+		delDroppedItem(droppedItem);
+	};
+
 	return {
 		state,
 		setTileset,
@@ -167,8 +314,15 @@ export const useDungeon = () => {
 		MapDraw,
 		PlayerDraw,
 		EnemyDraw,
+		getObjectsPosition,
+		ObjectsDraw,
 		EquipItem,
 		UnequipItem,
 		ConsumeItem,
+		ActivateTrap,
+		DrawExplosions,
+		ActivateChest,
+		DropItem,
+		PickUpDroppedItem,
 	};
 };
