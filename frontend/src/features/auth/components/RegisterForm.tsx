@@ -93,7 +93,7 @@ export default function RegisterForm() {
           </button>
           <div className={styles.divider}>OR</div>
 
-				<button type="button" className={styles.footerButton}>
+				<button type="button" className={styles.footerButton} onClick = {()=> navigate("/login")}>
 					Already have an account? <span>Log In</span>
 				</button>
         </form>

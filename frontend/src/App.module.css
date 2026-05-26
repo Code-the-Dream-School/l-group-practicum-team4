@@ -13,5 +13,6 @@
 	flex-direction: column;
 	align-items: center;
 	gap: 30px;
-	background-color: blue;
+	/* background-color: blue; */
+	background-color: #753A36
 }

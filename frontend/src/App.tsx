@@ -7,7 +7,7 @@ import { DungeonProvider } from "./features/Dungeon/contexts/dungeonContext";
 
 import Header from "./shared/components/Header";
 import Footer from "./shared/components/Footer";
-
+import HomePage from "./features/Home/pages/HomePageNew";
 import AboutPage from "./features/About/AboutPage";
 import RegisterPage from "./features/auth/pages/RegisterPage"
 import LoginPage from "./features/auth/pages/LoginPage"
@@ -24,6 +24,7 @@ function App() {
 				<Header title="DUNGEON BATTLE" />
 				<div className={styles["route-content"]}>
 					<Routes>
+						<Route path="/" element={<HomePage />} />
 						<Route path="/about" element={<AboutPage />} />
 						<Route path= "/register" element={<RegisterPage/>} />
 						<Route path= "/login" element={<LoginPage/>} />

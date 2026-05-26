@@ -1,0 +1,87 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 410px;
+  background: #f9ecd0;
+  padding: 16px;
+  border-radius: 12px;
+  color: #1a1a1a;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 2rem;
+}
+
+input {
+  height: 2rem;
+  padding: 8px;
+  border-radius: 10px;
+  border: 2px solid #d57c2f;
+  outline: none;
+  background: #ffcc4d;
+}
+
+p {
+  font-size: 1.2rem;
+  margin:  0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 3px solid #77271a;
+  cursor: pointer;
+  background: linear-gradient(
+		to bottom,
+		#e75c32 0%,
+		#ca3f20 100%
+	);
+  color: white;
+  font-size: 1.2rem;
+}
+
+
+.heroGrid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.avatarCircle {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffcc4d; 
+  border: 2px solid #d57c2f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+.selected {
+  background: #b6fda3; 
+  border: 3px solid #2ace9b;
+  transform: scale(1.08);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}

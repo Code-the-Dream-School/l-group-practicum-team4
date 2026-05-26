@@ -1,5 +1,5 @@
 import  type { User } from "../../../shared/models/userModel"
-
+import { Player } from "../../../shared/models/models";
 
 export type AuthState = {
   user: User | null;
@@ -7,6 +7,8 @@ export type AuthState = {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+
+  // selectedHero: Player | null;
 };
 
 export const initialState: AuthState = {
@@ -15,6 +17,8 @@ export const initialState: AuthState = {
   loading: false,
   error: null,
   isAuthenticated: false,
+
+  // selectedHero: null,
 }
 
 export type Action =
