@@ -6,16 +6,22 @@ const {
   getCharacter,
   createCharacter,
   updateCharacter,
+  replaceCharacter,
   deleteCharacter,
-  buySellItem
+  buySellItem,
+  equipItem,
+  unequipItem
 } = require("../controllers/character");
 
 router.route("/").get(getAllCharacters).post(createCharacter);
+router.route("/buysell").patch(buySellItem);
+router.route("/equip").patch(equipItem);
+router.route("/unequip").patch(unequipItem);
 router
   .route("/:id")
   .get(getCharacter)
+  .put(replaceCharacter)
   .patch(updateCharacter)
   .delete(deleteCharacter);
-router.route("/buysell").patch(buySellItem);
 
 module.exports = router;
