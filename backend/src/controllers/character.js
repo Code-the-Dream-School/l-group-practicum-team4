@@ -120,6 +120,7 @@ const buySellItem = async (req, res) => {
   res.status(200).json({ updatedChar });
 };
 
+// Equip an item (sent in body) that is present inside the character's inventory. If gear slot is occupied, swap the old gear out with the new gear.
 const equipItem = async (req, res) => {
   const {
     user: { userId },
@@ -197,6 +198,7 @@ const equipItem = async (req, res) => {
   res.status(200).json({ updatedChar });
 };
 
+// Unequip an item from a character's specified slot, and enter it into the inventory
 const unequipItem = async (req, res) => {
   const {
     user: { userId },
