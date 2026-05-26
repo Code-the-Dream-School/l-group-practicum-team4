@@ -4,8 +4,9 @@ const {
   generateDungeon,
   getDungeon,
 } = require("../controllers/dungeonMap.controller");
+const authMiddleware = require("../middleware/authentication");
 
-router.route("/generate").get(generateDungeon);
-router.route("/:id").get(getDungeon);
+router.route("/generate").get(authMiddleware, generateDungeon);
+router.route("/:id").get(authMiddleware, getDungeon);
 
 module.exports = router;

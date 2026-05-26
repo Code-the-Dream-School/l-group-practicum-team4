@@ -102,7 +102,7 @@ function generateMap(width = 30, height = 30, seed = Date.now()) {
     }
   }
 
-  // Place objects on floor tiles -- approach 1 
+  // Place objects on floor tiles -- approach 1
   // const random = seedrandom(seed + "_objects");
   // const objects = ["chest", "trap", "enemy_spawn"];
   // for (let y = 0; y < height; y++) {
@@ -112,6 +112,8 @@ function generateMap(width = 30, height = 30, seed = Date.now()) {
   //     }
   //   }
   // }
+
+  tiles = connectRegions(tiles, width, height);
 
   // Place objects on floor tiles using percentage based approach -- approach 2 (personal preferance)
   const random = seedrandom(seed + "_objects");
@@ -145,8 +147,6 @@ function generateMap(width = 30, height = 30, seed = Date.now()) {
       }
     }
   }
-
-  tiles = connectRegions(tiles, width, height);
 
   return { seed, width, height, tiles };
 }
