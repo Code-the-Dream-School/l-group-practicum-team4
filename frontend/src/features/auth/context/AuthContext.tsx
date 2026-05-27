@@ -85,6 +85,7 @@ const register = async (name: string, email: string, password: string) => {
   };
 
   
+  
   const logout = () => {
     localStorage.removeItem("token");
 

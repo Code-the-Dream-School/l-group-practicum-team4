@@ -26,7 +26,7 @@ export default function LoginForm() {
 
     try {
       await login(form.email, form.password);
-      navigate("/market");
+      navigate("/");
     } catch (err: any) {
       console.log(err.message);
     }
@@ -63,7 +63,7 @@ export default function LoginForm() {
 
           <div className={styles.divider}>OR</div>
 
-          <button type="button" className={styles.footerButton}>
+          <button type="button" className={styles.footerButton} onClick = {()=> navigate("/register")}>
             Don’t have an account? <span>Register</span>
           </button>
         </form>
