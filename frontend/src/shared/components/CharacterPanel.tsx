@@ -198,9 +198,9 @@ function InventoryContainer({
 }) {
 	return (
 		<div className={styles["inventory-container"]}>
-			{character.inventory.map((item) => (
+			{character.inventory.map((item, index) => (
 				<div
-					key={item.id}
+					key={index}
 					className={`${styles["item"]} ${item.type == "helmet" || item.type == "armor" || item.type == "shield" || item.type == "weapon" ? styles.wearables : ""} ${item.type == "potion" ? styles.consumables : ""}`}
 				>
 					<button

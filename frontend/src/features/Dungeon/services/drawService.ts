@@ -1,5 +1,10 @@
 import * as ROT from "rot-js";
-import type { Player, Enemy, Character } from "../../../shared/models/models";
+import type {
+	Player,
+	Enemy,
+	Character,
+	MapTile,
+} from "../../../shared/models/models";
 
 export const mapGenerator = (seed: number, width: number, height: number) => {
 	ROT.RNG.setSeed(seed);
@@ -37,26 +42,18 @@ export const mapGenerator = (seed: number, width: number, height: number) => {
 };
 
 export const EnemyGenerator = (
-	map: number[][],
+	map: MapTile[][],
 	seed: number,
 	enemyList: Enemy[],
 ) => {
 	if (!enemyList || enemyList.length === 0) return [];
 
-	ROT.RNG.setSeed(seed + 999);
-
 	const floorTiles: { x: number; y: number }[] = [];
+
 	for (let y = 0; y < map.length; y++) {
 		for (let x = 0; x < map[y].length; x++) {
-			if (map[y][x] === 0) {
-				floorTiles.push({ x, y });
-			}
+			if (map[y][x].object === "enemy_spawn") floorTiles.push({ x, y });
 		}
-	}
-
-	for (let i = floorTiles.length - 1; i > 0; i--) {
-		const j = Math.floor(ROT.RNG.getUniform() * (i + 1));
-		[floorTiles[i], floorTiles[j]] = [floorTiles[j], floorTiles[i]];
 	}
 
 	const placedEnemies: (Enemy & {
@@ -73,8 +70,8 @@ export const EnemyGenerator = (
 
 		placedEnemies.push({
 			...enemyTemplate,
-			x: tile.x * 32 + 16,
-			y: tile.y * 32 + 16,
+			x: tile.x,
+			y: tile.y,
 			radius: 14,
 		} as Enemy & {
 			id: number;
@@ -89,13 +86,19 @@ export const EnemyGenerator = (
 
 export const MapDraw = (
 	ctx: CanvasRenderingContext2D,
-	map: number[][],
+	map: MapTile[][],
 	tileSize: number,
 	originalTileSize: number,
 	offsetX: number,
 	offsetY: number,
 	tileset: HTMLImageElement,
 ) => {
+	const isWall = (px: number, py: number) => {
+		if (px < 0 || py < 0 || py >= map.length || px >= map[0].length)
+			return true; // fuera = pared
+		return map[py][px].type === "wall" || map[py][px].type === "cealing";
+	};
+
 	if (!ctx || !map || !tileset) return;
 
 	for (let y = 0; y < map.length; y++) {
@@ -108,8 +111,30 @@ export const MapDraw = (
 				screenX > ctx.canvas.width ||
 				screenY < -originalTileSize ||
 				screenY > ctx.canvas.height
-			)
+			) {
 				continue;
+			}
+
+			const nNeibor = isWall(x, y - 1);
+			const sNeibor = isWall(x, y + 1);
+			const eNeibor = isWall(x + 1, y);
+			const wNeibor = isWall(x - 1, y);
+			const neNeibor = isWall(x + 1, y - 1);
+			const nwNeibor = isWall(x - 1, y - 1);
+			const seNeibor = isWall(x + 1, y + 1);
+			const swNeibor = isWall(x - 1, y + 1);
+
+			if (
+				nNeibor &&
+				sNeibor &&
+				eNeibor &&
+				wNeibor &&
+				neNeibor &&
+				nwNeibor &&
+				seNeibor &&
+				swNeibor
+			)
+				map[y][x].type = "cealing";
 
 			const { col, row } = getTileVariant(x, y, map);
 			DrawTile(ctx, tileset, col, row, screenX, screenY);
@@ -117,57 +142,238 @@ export const MapDraw = (
 	}
 };
 
-const getTileVariant = (x: number, y: number, map: number[][]) => {
-	const isWall = (px: number, py: number) => {
-		if (px < 0 || py < 0 || py >= map.length || px >= map[0].length)
-			return true; // fuera = pared
-		return map[py][px] === 1;
-	};
+const getTileVariant = (x: number, y: number, map: MapTile[][]) => {
+	const currentTile = map[y][x].type;
 
-	const currentIsWall = isWall(x, y);
-	const nNeibor = isWall(x, y - 1);
-	const sNeibor = isWall(x, y + 1);
-	const eNeibor = isWall(x + 1, y);
-	const wNeibor = isWall(x - 1, y);
-	const neNeibor = isWall(x + 1, y - 1);
-	const nwNeibor = isWall(x - 1, y - 1);
-	const seNeibor = isWall(x + 1, y + 1);
-	const swNeibor = isWall(x - 1, y + 1);
+	const nNeibor = y !== 0 ? map[y - 1][x].type : "wall";
+	const sNeibor = y < map.length - 1 ? map[y + 1][x].type : "wall";
+	const eNeibor = x < map[0].length - 1 ? map[y][x + 1].type : "wall";
+	const wNeibor = x !== 0 ? map[y][x - 1].type : "wall";
 
-	if (!currentIsWall) {
-		if (!nwNeibor && !nNeibor && !wNeibor) return { col: 0, row: 4 }; // suelo variante 1
-		if (nNeibor && !wNeibor) return { col: 2, row: 4 }; // suelo variante 2
-		if (!nNeibor && wNeibor) return { col: 7, row: 3 }; // suelo variante 3
-		if (nwNeibor && !nNeibor && !wNeibor) return { col: 5, row: 4 }; // suelo variante 4
-		if (nNeibor && wNeibor) return { col: 6, row: 3 }; // suelo variante 5
+	const neNeibor =
+		x < map[0].length - 1 && y !== 0 ? map[y - 1][x + 1].type : "wall";
+	const nwNeibor = x !== 0 && y !== 0 ? map[y - 1][x - 1].type : "wall";
+	const seNeibor =
+		x < map[0].length - 1 && y < map.length - 1
+			? map[y + 1][x + 1].type
+			: "wall";
+	const swNeibor =
+		x !== 0 && y < map.length - 1 ? map[y + 1][x - 1].type : "wall";
+	const sseNeibor =
+		x < map[0].length - 1 && y < map.length - 2
+			? map[y + 2][x + 1].type
+			: "wall";
 
-		return { col: 1, row: 5 }; // ajusta según tu tileset
-	} else {
-		if (nNeibor && sNeibor && eNeibor && !wNeibor)
-			return { col: 3, row: 1 }; // wall variante 2
-		if (nNeibor && sNeibor && !eNeibor && !wNeibor)
-			return { col: 6, row: 2 }; // wall variante 3
-		if (nNeibor && sNeibor && !eNeibor && wNeibor)
-			return { col: 1, row: 1 }; // wall variante 4
-		if (nNeibor && !sNeibor && wNeibor && eNeibor)
-			return { col: 4, row: 3 }; // wall variante 4
-		if (nNeibor && !sNeibor && !swNeibor && !wNeibor)
-			return { col: 9, row: 4 }; // wall variante 4
-		if (nNeibor && !sNeibor && !eNeibor) return { col: 11, row: 4 }; // wall variante 4
-		if (!nNeibor && sNeibor && wNeibor && eNeibor)
-			return { col: 2, row: 2 }; // wall variante 4
-		if (!nNeibor && sNeibor && !wNeibor && eNeibor)
-			return { col: 4, row: 0 }; // wall variante 4
-		if (!nNeibor && sNeibor && wNeibor && !eNeibor)
-			return { col: 5, row: 0 }; // wall variante 4
-		if (nNeibor && sNeibor && wNeibor && eNeibor && !neNeibor)
-			return { col: 1, row: 2 }; // wall variante 4
-		if (nNeibor && sNeibor && wNeibor && eNeibor && !seNeibor)
-			return { col: 1, row: 1 }; // wall variante 4
+	if (currentTile === "floor") {
+		if (nNeibor === "wall" && wNeibor === "floor") {
+			return { col: 2, row: 4 };
+		}
+		if (nNeibor === "wall" && wNeibor === "wall") return { col: 6, row: 3 };
+		if (nNeibor === "floor" && wNeibor === "wall")
+			return { col: 7, row: 3 };
+		if (nwNeibor === "wall" && nNeibor === "floor" && wNeibor === "floor") {
+			return { col: 5, row: 4 };
+		}
+
+		return { col: 0, row: 4 };
 	}
 
-	// Pared normal (interior)
-	return { col: 0, row: 0 }; // wall variante 1
+	if (currentTile === "wall") {
+		if (
+			nNeibor === "wall" &&
+			sNeibor === "wall" &&
+			eNeibor === "floor" &&
+			wNeibor === "floor"
+		)
+			return { col: 6, row: 2 };
+
+		if (sNeibor === "floor" && wNeibor === "wall" && eNeibor === "wall") {
+			if (((x * y) % 10) % 2 === 0) return { col: 4, row: 3 };
+			else return { col: 4, row: 2 };
+		}
+		if (
+			nNeibor === "wall" &&
+			sNeibor == "floor" &&
+			swNeibor === "floor" &&
+			eNeibor === "wall"
+		)
+			return { col: 9, row: 4 };
+
+		if (
+			nNeibor === "wall" &&
+			sNeibor == "floor" &&
+			wNeibor === "wall" &&
+			eNeibor === "floor"
+		)
+			return { col: 11, row: 4 };
+		if (
+			nNeibor === "floor" &&
+			sNeibor === "cealing" &&
+			wNeibor === "wall" &&
+			eNeibor === "wall"
+		)
+			return { col: 2, row: 2 };
+		if (
+			nNeibor === "floor" &&
+			sNeibor === "wall" &&
+			wNeibor === "floor" &&
+			eNeibor === "wall" &&
+			seNeibor === "wall" &&
+			nwNeibor === "floor" &&
+			sseNeibor === "floor"
+		)
+			return { col: 1, row: 3 };
+		if (
+			nNeibor === "floor" &&
+			sNeibor === "wall" &&
+			wNeibor === "floor" &&
+			eNeibor === "wall"
+		)
+			return { col: 4, row: 0 };
+		if (
+			nNeibor === "floor" &&
+			sNeibor === "wall" &&
+			wNeibor === "wall" &&
+			eNeibor === "floor"
+		)
+			return { col: 5, row: 0 };
+
+		if (
+			nNeibor === "wall" &&
+			sNeibor === "cealing" &&
+			eNeibor === "wall" &&
+			neNeibor === "floor"
+		)
+			return { col: 1, row: 2 };
+		if (
+			nNeibor === "wall" &&
+			wNeibor === "wall" &&
+			nwNeibor === "floor" &&
+			sNeibor === "wall" &&
+			eNeibor === "wall"
+		)
+			return { col: 2, row: 3 };
+		if (
+			nNeibor === "wall" &&
+			wNeibor === "wall" &&
+			nwNeibor === "floor" &&
+			sNeibor === "wall"
+		)
+			return { col: 0, row: 3 };
+		if (
+			nNeibor === "wall" &&
+			wNeibor === "wall" &&
+			nwNeibor === "floor" &&
+			sNeibor === "wall" &&
+			eNeibor === "cealing"
+		)
+			return { col: 3, row: 3 };
+
+		if (nNeibor === "wall" && wNeibor === "wall" && nwNeibor === "floor")
+			return { col: 3, row: 2 };
+		if (
+			(eNeibor === "floor" || eNeibor === "wall") &&
+			wNeibor === "cealing" &&
+			swNeibor === "wall"
+		)
+			return { col: 5, row: 1 };
+		if (
+			(wNeibor === "floor" || wNeibor === "wall") &&
+			eNeibor === "cealing" &&
+			seNeibor === "wall"
+		)
+			return { col: 4, row: 1 };
+		if (
+			(eNeibor === "floor" || eNeibor === "wall") &&
+			(wNeibor === "cealing" || wNeibor === "wall")
+		)
+			return { col: 1, row: 1 };
+		if (
+			(nNeibor === "wall" || nNeibor === "cealing") &&
+			sNeibor === "wall" &&
+			eNeibor === "cealing" &&
+			(wNeibor === "floor" || wNeibor === "wall")
+		)
+			return { col: 3, row: 1 };
+		if (
+			nNeibor === "floor" &&
+			wNeibor === "floor" &&
+			eNeibor === "floor" &&
+			sNeibor === "wall"
+		)
+			return { col: 6, row: 0 };
+
+		if (
+			nNeibor === "floor" &&
+			wNeibor === "floor" &&
+			eNeibor === "wall" &&
+			sNeibor === "floor"
+		)
+			return { col: 6, row: 1 };
+
+		return { col: 1, row: 3 };
+	}
+
+	if (currentTile === "cealing") {
+		if (sNeibor === "wall" && swNeibor === "cealing")
+			return { col: 1, row: 0 };
+
+		if (sNeibor === "wall" && seNeibor === "cealing")
+			return { col: 3, row: 0 };
+		if (
+			sNeibor === "wall" &&
+			(eNeibor === "cealing" || eNeibor === "wall") &&
+			(wNeibor === "cealing" || wNeibor === "wall")
+		)
+			return { col: 2, row: 0 };
+
+		return { col: 0, row: 0 };
+	}
+
+	return { col: 0, row: 0 };
+};
+
+export const ObjectsDraw = (
+	ctx: CanvasRenderingContext2D,
+	tileSize: number,
+	tileset: HTMLImageElement,
+	objectType: string,
+	px: number,
+	py: number,
+	offsetX: number,
+	offsetY: number,
+) => {
+	if (!ctx || !tileset || !objectType) return;
+
+	const screenX = px * tileSize - offsetX;
+	const screenY = py * tileSize - offsetY;
+
+	let col = 0;
+	let row = 0;
+	switch (objectType) {
+		case "entrance":
+			col = 9;
+			row = 0;
+			break;
+		case "trap":
+			col = 5;
+			row = 3;
+			break;
+		case "chest":
+			col = 5;
+			row = 7;
+			break;
+		case "enemy_spawn":
+			col = 0;
+			row = 9;
+			break;
+		default:
+			col = 0;
+			row = 5;
+			break;
+	}
+
+	DrawTile(ctx, tileset, col, row, screenX, screenY);
 };
 
 const DrawTile = (
@@ -258,7 +464,7 @@ export const EnemyDraw = (
 			col = 0;
 			row = 9;
 			break;
-		case "Ciclop":
+		case "Cyclop":
 			col = 1;
 			row = 9;
 			break;
@@ -285,6 +491,10 @@ export const EnemyDraw = (
 		case "Rat":
 			col = 3;
 			row = 10;
+			break;
+		case "Mimic":
+			col = 8;
+			row = 7;
 			break;
 		default:
 			col = 0;
@@ -360,6 +570,8 @@ const CharacterDraw = (
 				wRow = 10;
 				break;
 			default:
+				wCol = 5;
+				wRow = 10;
 				break;
 		}
 
@@ -392,6 +604,10 @@ const CharacterDraw = (
 			case "Plate Shield":
 				sCol = 6;
 				sRow = 8;
+				break;
+			default:
+				sCol = 5;
+				sRow = 10;
 				break;
 		}
 
@@ -465,4 +681,57 @@ const DrawSprite = (
 	);
 
 	ctx.restore();
+};
+
+export interface Explosion {
+	x: number;
+	y: number;
+	life: number;
+	maxLife: number;
+}
+
+export const DrawExplosions = (
+	ctx: CanvasRenderingContext2D,
+	explosions: Explosion[],
+	setExplosions: (value: React.SetStateAction<Explosion[]>) => void,
+	tileSize: number,
+	offsetX: number,
+	offsetY: number,
+) => {
+	ctx.save();
+	explosions.forEach((exp: Explosion, index: number) => {
+		DrawExplosion(ctx, exp, tileSize, offsetX, offsetY);
+
+		exp.life -= 1;
+
+		if (exp.life <= 0) {
+			setExplosions((prev) => prev.filter((_, i) => i !== index));
+		}
+	});
+	ctx.restore();
+};
+
+const DrawExplosion = (
+	ctx: CanvasRenderingContext2D,
+	explosion: Explosion,
+	tileSize: number,
+	offsetX: number,
+	offsetY: number,
+) => {
+	const screenX = explosion.x * tileSize - offsetX + tileSize / 2;
+	const screenY = explosion.y * tileSize - offsetY + tileSize / 2;
+
+	const alpha = explosion.life / explosion.maxLife; // se desvanece
+
+	// Círculo principal (explosión)
+	ctx.beginPath();
+	ctx.arc(screenX, screenY, 38 * alpha, 0, Math.PI * 2);
+	ctx.fillStyle = `rgba(255, 120, 0, ${alpha * 0.9})`;
+	ctx.fill();
+
+	// Círculo secundario más pequeño (núcleo)
+	ctx.beginPath();
+	ctx.arc(screenX, screenY, 24 * alpha, 0, Math.PI * 2);
+	ctx.fillStyle = `rgba(255, 220, 50, ${alpha})`;
+	ctx.fill();
 };

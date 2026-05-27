@@ -106,6 +106,8 @@ function getPosition(name: string) {
 			row = 9;
 			break;
 		default:
+			col = 0;
+			row = 5;
 			break;
 	}
 
