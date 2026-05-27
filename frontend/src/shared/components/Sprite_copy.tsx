@@ -145,6 +145,10 @@ function getPosition(name: string) {
 			col = 3;
 			row = 9;
 			break;
+		case "Chest":
+			col = 6;
+			row = 7;
+			break;
 		default:
 			break;
 	}
