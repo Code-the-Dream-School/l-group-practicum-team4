@@ -1,19 +1,36 @@
 const Character = require("../models/Character");
 const Item = require("../models/Item");
+const mongoose = require("mongoose");
 
 const getAllCharacters = async (req, res) => {
-  const chars = await Character.find({ createdBy: req.user.userId }).sort(
-    "createdAt"
-  );
+  const userId = req.query.uid;
+  let chars = [];
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    res.status(400).json({ message: "Invalid ID" });
+    return;
+  }
+
+  if (!userId) {
+    chars = await Character.find({ createdBy: null }).sort("createdAt");
+  } else {
+    chars = await Character.find({ createdBy: userId }).sort("createdAt");
+  }
+
   res.status(200).json({ chars, count: chars.length });
 };
 
 const getCharacter = async (req, res) => {
   const {
-    user: { userId },
     params: { id: charId }
   } = req;
-  const char = await Character.findOne({ _id: charId, createdBy: userId });
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid ID" });
+    return;
+  }
+
+  const char = await Character.findOne({ _id: charId });
   if (!char) {
     res.status(404).json({ message: "Character not found" });
     return;
@@ -34,6 +51,12 @@ const replaceCharacter = async (req, res, next) => {
     user: { userId },
     params: { id: charId }
   } = req;
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid Character ID" });
+    return;
+  }
+
   const char = await Character.findOneAndReplace(
     { _id: charId, createdBy: userId },
     { ...req.body, createdBy: userId },
@@ -52,6 +75,12 @@ const updateCharacter = async (req, res, next) => {
     user: { userId },
     params: { id: charId }
   } = req;
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid Character ID" });
+    return;
+  }
+
   const char = await Character.findOneAndUpdate(
     { _id: charId, createdBy: userId },
     req.body,
@@ -69,6 +98,12 @@ const deleteCharacter = async (req, res) => {
     user: { userId },
     params: { id: charId }
   } = req;
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid Character ID" });
+    return;
+  }
+
   const char = await Character.findByIdAndDelete({
     _id: charId,
     createdBy: userId
@@ -85,6 +120,17 @@ const buySellItem = async (req, res) => {
     user: { userId },
     query: { cid: charId, iid: itemId, buy: buying }
   } = req;
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid Character ID" });
+    return;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    res.status(400).json({ message: "Invalid Item ID" });
+    return;
+  }
+
   const isBuying = buying === "true";
   const char = await Character.findOne({ _id: charId, createdBy: userId });
   if (!char) {
@@ -127,6 +173,11 @@ const equipItem = async (req, res) => {
     query: { cid: charId },
     body: { item: item }
   } = req;
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid Character ID" });
+    return;
+  }
 
   let char = await Character.findOne({ _id: charId, createdBy: userId });
   if (!char) {
@@ -205,6 +256,11 @@ const unequipItem = async (req, res) => {
     query: { cid: charId, slot: gearType },
     body: { item: item }
   } = req;
+
+  if (!mongoose.Types.ObjectId.isValid(charId)) {
+    res.status(400).json({ message: "Invalid Character ID" });
+    return;
+  }
 
   let char = await Character.findOne({ _id: charId, createdBy: userId });
   if (!char) {

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../middleware/authentication");
 
 const {
   getAllCharacters,
@@ -13,15 +14,15 @@ const {
   unequipItem
 } = require("../controllers/character");
 
-router.route("/").get(getAllCharacters).post(createCharacter);
-router.route("/buysell").patch(buySellItem);
-router.route("/equip").patch(equipItem);
-router.route("/unequip").patch(unequipItem);
+router.route("/").get(getAllCharacters).post(authMiddleware, createCharacter);
+router.route("/buysell").patch(authMiddleware, buySellItem);
+router.route("/equip").patch(authMiddleware, equipItem);
+router.route("/unequip").patch(authMiddleware, unequipItem);
 router
   .route("/:id")
-  .get(getCharacter)
-  .put(replaceCharacter)
-  .patch(updateCharacter)
-  .delete(deleteCharacter);
+  .get(authMiddleware, getCharacter)
+  .put(authMiddleware, replaceCharacter)
+  .patch(authMiddleware, updateCharacter)
+  .delete(authMiddleware, deleteCharacter);
 
 module.exports = router;

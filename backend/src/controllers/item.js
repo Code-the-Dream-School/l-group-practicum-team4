@@ -2,7 +2,7 @@ const Item = require("../models/Item");
 
 const getAllItems = async (req, res) => {
   const items = await Item.find();
-  res.status(200).json({ items, count: items.lenght });
+  res.status(200).json({ items, count: items.length });
 };
 
 const getItem = async (req, res) => {
@@ -12,6 +12,7 @@ const getItem = async (req, res) => {
   const item = await Item.findOne({ _id: itemId });
   if (!item) {
     res.status(404).json({ message: "Item not found" });
+    return;
   }
   res.status(200).json({ item });
 };
@@ -31,6 +32,7 @@ const updateItem = async (req, res) => {
   });
   if (!item) {
     res.status(404).json({ message: "Item not found" });
+    return;
   }
   res.status(200).json({ item });
 };
@@ -42,6 +44,7 @@ const deleteItem = async (req, res) => {
   const item = await Item.findOneAndDelete({ _id: itemId });
   if (!item) {
     res.status(404).json({ message: "Item not found" });
+    return;
   }
   res.status(200).json({ message: "Item successfully deleted" });
 };
