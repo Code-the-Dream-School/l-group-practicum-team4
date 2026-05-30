@@ -1,4 +1,5 @@
 const Dungeon = require("../models/dungeonMap");
+const Character = require("../models/Character");
 const { generateMap } = require("../services/mapGenerator");
 
 const generateDungeon = async (req, res) => {
@@ -15,6 +16,11 @@ const generateDungeon = async (req, res) => {
     const chestCount = flatTiles.filter((t) => t.object === "chest").length;
     const trapCount = flatTiles.filter((t) => t.object === "trap").length;
 
+    // Fetch random enemies from Character collection
+    const enemies = await Character.aggregate([
+      { $sample: { size: enemySpawnCount } },
+    ]);
+
     const dungeon = await Dungeon.create({
       seed,
       width: Number(width),
@@ -23,9 +29,10 @@ const generateDungeon = async (req, res) => {
       tiles,
     });
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       dungeon,
+      enemies,
       stats: { enemySpawnCount, chestCount, trapCount },
     });
   } catch (e) {

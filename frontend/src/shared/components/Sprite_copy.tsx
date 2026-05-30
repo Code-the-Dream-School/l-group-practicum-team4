@@ -105,9 +105,51 @@ function getPosition(name: string) {
 			col = 8;
 			row = 9;
 			break;
-		default:
+		case "Mage":
 			col = 0;
-			row = 5;
+			row = 7;
+			break;
+		case "Knight":
+			col = 1;
+			row = 8;
+			break;
+		case "Horned Warrior":
+			col = 3;
+			row = 7;
+			break;
+		case "Helmet Warrior":
+			col = 0;
+			row = 8;
+			break;
+		case "Sportman":
+			col = 4;
+			row = 9;
+			break;
+		case "Spider":
+			col = 2;
+			row = 10;
+			break;
+		case "Ghost":
+			col = 1;
+			row = 10;
+			break;
+		case "Purple Girl":
+			col = 3;
+			row = 8;
+			break;
+		case "Grey Hair Girl":
+			col = 4;
+			row = 8;
+			break;
+		case "Brown Mage":
+			col = 3;
+			row = 9;
+			break;
+		case "Chest":
+			col = 6;
+			row = 7;
+			break;
+		default:
 			break;
 	}
 
