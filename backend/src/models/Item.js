@@ -4,36 +4,36 @@ const ItemSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Item must have a name"],
+      required: [true, "Item must have a name"]
     },
     description: {
       type: String,
-      required: [true, "Item must have description"],
+      required: [true, "Item must have description"]
     },
     type: {
       type: String,
       required: [true, "Item must have a type"],
-      enum: ["wearable", "consumable"],
-      default: "consumable",
+      enum: ["weapon", "armor", "helmet", "shield", "food", "potion", "poison"],
+      default: "weapon"
     },
     coinCost: {
       type: Number,
-      required: [true, "Item must have a coin cost"],
+      required: [true, "Item must have a coin cost"]
     },
     stat: {
       type: String,
       required: [true, "Item must have a stat"],
       enum: ["health", "attack", "defense", "speed"],
-      default: "health",
+      default: "health"
     },
     value: {
       type: Number,
-      required: [true, "Item must have a value"],
-    },
+      required: [true, "Item must have a value"]
+    }
   },
   {
-    timestamps: true,
-  },
+    timestamps: true
+  }
 );
 
 module.exports = mongoose.model("Item", ItemSchema);

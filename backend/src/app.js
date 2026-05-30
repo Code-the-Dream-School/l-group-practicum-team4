@@ -27,9 +27,9 @@ app.use(limiter);
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/character", authMiddleware, characterRoutes);
-app.use("/api/item", itemRoutes);
-app.use("/api/dungeon", dungeonRoutes);
+app.use("/api/character", characterRoutes);
+app.use("/api/item", authMiddleware, itemRoutes);
+app.use("/api/dungeon", authMiddleware, dungeonRoutes);
 
 // Root route
 app.get("/", (req, res) => {
