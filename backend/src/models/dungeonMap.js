@@ -15,9 +15,21 @@ const TileSchema = new mongoose.Schema(
   { _id: false },
 );
 
+const DungeonEnemySchema = new mongoose.Schema(
+  {
+    enemy: { type: mongoose.Types.ObjectId, ref: "Character", required: true },
+    status: {
+      type: String,
+      enum: ["active", "defeated"],
+      default: "active",
+    },
+  },
+  { _id: false },
+);
+
 const DungeonSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Types.ObjectId, ref: "User", required: false },
+    user: { type: mongoose.Types.ObjectId, ref: "User", required: true },
     seed: { type: Number, required: true },
     width: { type: Number, required: true },
     height: { type: Number, required: true },
@@ -28,6 +40,7 @@ const DungeonSchema = new mongoose.Schema(
       default: "active",
     },
     tiles: { type: [[Object]], required: true },
+    enemies: { type: [DungeonEnemySchema], required: true },
   },
   { timestamps: true },
 );
