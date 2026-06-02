@@ -2,8 +2,9 @@ import type { Character } from "../../shared/models/models"
 
 export const defaultHeroes: Character[] = [
   {
-    "_id": "hero_knight",
+    "_id": "1",
     "name": "Knight",
+    "spriteKey": "Knight",
     "type": "player",
     "role": "tank",
     "hp": 120,
@@ -12,8 +13,9 @@ export const defaultHeroes: Character[] = [
     "speed": 8
   },
   {
-    "_id": "hero_mage",
+    "_id": "2",
     "name": "Mage",
+    "spriteKey": "Mage",
     "type": "player",
     "role": "magic",
     "hp": 80,
@@ -22,8 +24,9 @@ export const defaultHeroes: Character[] = [
     "speed": 10
   },
   {
-    "_id": "helmet_warrior",
+    "_id": "3",
     "name": "Helmet Warrior",
+    "spriteKey": "Helmet Warrior",
     "type": "player",
     "role": "agile",
     "hp": 90,
@@ -32,8 +35,9 @@ export const defaultHeroes: Character[] = [
     "speed": 18
   },
   {
-    "_id": "Horned_warrior",
+    "_id": "4",
     "name": "Horned Warrior",
+    "spriteKey": "Horned Warrior",
     "type": "player",
     "role": "agile",
     "hp": 90,

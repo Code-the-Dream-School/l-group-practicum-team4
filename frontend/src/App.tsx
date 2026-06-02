@@ -30,7 +30,14 @@ function App() {
 								element={<RegisterPage />}
 							/>
 							<Route path="/login" element={<LoginPage />} />
-
+							<Route
+								path="/"
+								element={
+									<ProtectedRoute>
+										<HomePage />
+									</ProtectedRoute>
+								}
+							/>
 							<Route
 								path="/market"
 								element={

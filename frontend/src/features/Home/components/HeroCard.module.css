@@ -35,6 +35,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  image-rendering: pixelated;
 }
 
 .heroName {
@@ -103,16 +104,11 @@
 }
 
 .iconBtn {
-  width: 34px;
+  width: 80px;
   height: 34px;
   border-radius: 10px;
-  border: 2px solid #77271a;
-  background: linear-gradient(
-    to bottom,
-    #f6be51 0%,
-    #e6a83a 100%
-  );
-
+  border: 2px solid #2ace9b;
+  background: #b6fda3;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -120,6 +116,7 @@
   font-size: 14px;
   box-shadow: inset 0 2px #fff2d2;
   transition: 0.2s;
+  margin-bottom: 10px;
 }
 
 .iconBtn:hover {

@@ -1,13 +1,13 @@
 import styles from "./HeroCard.module.css";
-import Sprite from "../../../shared/components/Sprite_copy";
+import Sprite from "../../../shared/components/Sprite_for_pages";
+import type { Character } from "../../../shared/models/models copy";
 
 type HeroCardProps = {
-  character: any;
+  character: Character;
   selected: boolean;
   tileset: HTMLImageElement;
-
-  onSelect: () => void;
-  onEdit: () => void;
+  onSelect: (character: Character)  => void;
+  onEdit: (character: Character) => void;
   onDelete: () => void;
 };
 
@@ -23,17 +23,14 @@ export default function HeroCard({
 
   return (
     <div
-      className={`${styles.card} ${
-        selected ? styles.active : ""
-      }`}
-      onClick={onSelect}
+      className={`${styles.card} ${ selected ? styles.active : ""}`}
+      onClick={() => onSelect(character)}
     >
-     
       <div className={styles.avatarCircle}>
         <Sprite
           tileset={tileset}
           size={70}
-          itemName={character.name}
+          itemName={character.spriteKey}
         />
       </div>
      
@@ -42,28 +39,24 @@ export default function HeroCard({
       </h3>
 
       <span className={styles.level}>
-        Level {character.level || 1}
+        Level {character.level ?? 1}
       </span>
      
       <div className={styles.statsGrid}>
-        <div>❤️ {character.hp}</div>
+        <div>❤️ {character.health}</div>
         <div>⚔️ {character.attack}</div>
         <div>🛡️ {character.defense}</div>
         <div>👟 {character.speed}</div>
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.selectBtn}>
-          SELECT
-        </button>
-
-        {character.isDefault && (
+        {!character.isDefault && (
           <div className={styles.iconActions}>
             <button
               className={styles.iconBtn}
               onClick={(e) => {
                 e.stopPropagation();
-                onEdit();
+                onEdit(character);
               }}
               title="Edit"
             >
@@ -83,6 +76,13 @@ export default function HeroCard({
           </div>
         )}
       </div>
+      <button className={styles.selectBtn} 
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(character);
+        }}>
+          SELECT
+        </button>
     </div>
   );
 }

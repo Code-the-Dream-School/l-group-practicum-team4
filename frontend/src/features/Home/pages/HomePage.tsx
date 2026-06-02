@@ -1,54 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useCharacter } from "../hook/useCharacter";
 import { useNavigate } from "react-router";
 import styles from "./HomePage.module.css";
 import tilesetImg from "../../../assets/dungeontileset.png";
 import { defaultHeroes } from "../heroes";
 import Modal from "../components/Modal";
 import NewHeroForm from "../components/NewHeroForm";
+import EditHeroForm from "../components/EditHeroFormNew";
 import HeroCard from "../components/HeroCard";
 
-import {
-  deleteCharacter,
-  createCharacter,
-  getAllCharacters,
-  updateCharacter,
-} from "../api/api";
 
 const tileset = new Image();
 tileset.src = tilesetImg;
 
 export default function HomePage() {
-  const [characters, setCharacters] = useState<any[]>([]);
-  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
+
+  const {
+  characters,
+  selectedCharacter,
+  loading,
+  selectCharacter,
+  createCharacter,
+  updateCharacter,
+  deleteCharacter,
+} = useCharacter();
+
   const [editingCharacter, setEditingCharacter] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
   const allHeroes = [...defaultHeroes, ...characters];
 
-  useEffect(() => {
-    getAllCharacters()
-      .then((data) => {
-        setCharacters(data);
-
-        if (data.length > 0) {
-          setSelectedCharacter(data[0]);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleCreate = () => {
+  const handleCreate = () => {  
     setEditingCharacter(null);
     setShowForm(true);
   };
 
   const handleEdit = (character: any) => {
-    setEditingCharacter(character);
-    setShowForm(true);
+    setEditingCharacter({
+    _id: character._id || character.id,
+    name: character.name,
+    spriteKey: character.spriteKey,
+    health: character.health,
+    attack: character.attack,
+    defense: character.defense,
+    speed: character.speed
+  });
+  setShowForm(true);
   };
 
   const handleCloseModal = () => {
@@ -56,29 +55,17 @@ export default function HomePage() {
     setEditingCharacter(null);
   };
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: any) => {   
     try {
       if (editingCharacter) {
-        const updated = await updateCharacter(
+       
+       await updateCharacter(
           editingCharacter._id,
           formData
         );
-
-        setCharacters((prev) =>
-          prev.map((c) =>
-            (c._id || c.id) === (updated._id || updated.id)
-              ? updated
-              : c
-          )
-        );
-
-        setSelectedCharacter(updated);
-      } else {
-        const created = await createCharacter(formData);
-
-        setCharacters((prev) => [...prev, created]);
-        setSelectedCharacter(created);
-      }
+       } else {
+        await createCharacter(formData)
+      }   
     } catch (err) {
       console.error(err);
     } finally {
@@ -90,18 +77,11 @@ export default function HomePage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteCharacter(id);
-
-      setCharacters((prev) =>
-        prev.filter((c) => (c._id || c.id) !== id)
-      );
-
-      setSelectedCharacter((prev) =>
-        prev && (prev._id || prev.id) === id ? null : prev
-      );
     } catch (err) {
       console.error(err);
     }
   };
+
 
   return (
     <div className={styles.page}>
@@ -129,7 +109,7 @@ export default function HomePage() {
                       uid
                     }
                     tileset={tileset}
-                    onSelect={() => setSelectedCharacter(character)}
+                    onSelect={() => selectCharacter(character)}
                     onEdit={() => handleEdit(character)}
                     onDelete={() => handleDelete(uid)}
                   />
@@ -152,12 +132,19 @@ export default function HomePage() {
             </div>
 
             <Modal isOpen={showForm} onClose={handleCloseModal}>
-              <NewHeroForm
-                mode={editingCharacter ? "edit" : "create"}
-                initialData={editingCharacter}
-                onSubmit={handleSubmit}
-                onCancel={handleCloseModal}
-              />
+              {editingCharacter ? (
+  <EditHeroForm
+    hero={editingCharacter}
+    onSubmit={handleSubmit}
+    onCancel={handleCloseModal}
+  />
+) : (
+  <NewHeroForm
+    onSubmit={handleSubmit}
+    onCancel={handleCloseModal}
+  />
+)}
+           
             </Modal>
 
             <div className={styles.bottomSection}>

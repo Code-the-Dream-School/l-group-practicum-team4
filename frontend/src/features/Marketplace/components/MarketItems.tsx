@@ -10,27 +10,28 @@ interface Props{
   mode: "buy" | "sell";
 }
 
-const MarketItems = ({tileset, items, onBuy, onSell, mode}: Props) => {
+const MarketItems = ({tileset, items, onBuy, onSell, mode,}: Props) => {
 
   return (
-    <>
-    <div className={styles.marketItems}>  
+    <div className={`${styles.marketItems} ${mode === "buy" ? styles.buyItems : styles.sellItems}`}>
       {items.map((item) => (
-        <div 
-          key = {item.inventoryId} 
-          className={styles.marketItem}
-          onClick={() => (mode === "buy" ? onBuy(item) : onSell(item))}> 
-
+        <div  key = {item.inventoryId} className={`${styles.marketItem} `}> 
           <Sprite 
             tileset={tileset}
             size={32}
             itemName={item.name}/>
           <div className={styles.name}>{item.name}</div>
-          <div className={styles.price}>Price:{item.coinCost} </div>
+          <div className={styles.price}>Price:{item.coinCost} </div>    
+          {mode === "buy" ? (
+            <button className={styles.buyButton} onClick={() => onBuy(item)}
+            > Buy </button>
+            ) : (
+            <button className={styles.sellButton} onClick={() => onSell(item)}
+            > Sell </button>
+          )}
         </div>
       ))}     
     </div>
-  </>
   )
 }
  export default MarketItems
