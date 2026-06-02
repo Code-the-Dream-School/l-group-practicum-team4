@@ -78,7 +78,6 @@ button {
   transition: all 0.2s ease;
 }
 
-
 .selected {
   background: #b6fda3; 
   border: 3px solid #2ace9b;

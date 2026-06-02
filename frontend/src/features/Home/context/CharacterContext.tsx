@@ -67,13 +67,9 @@ export const CharacterProvider = ({ children,}:{ children: React.ReactNode; }) =
   const updateCharacterFn = async (id: string, data: any) => {
     try {
       const updated = await apiUpdateCharacter(id, data);
+      setCharacters(prev => {const next = prev.map(c => c.id === updated.id ? updated : c);
 
-      setCharacters(prev => {
-        const next = prev.map(c =>
-        c.id === updated.id ? updated : c
-        );
-
-        return next;
+      return next;
       });
 
       setSelectedCharacter(updated);
@@ -97,33 +93,25 @@ export const CharacterProvider = ({ children,}:{ children: React.ReactNode; }) =
     }
   };
 
+
 useEffect(() => {
   fetchCharacters();
 }, []);
 
 
-
-
-
-
-
-
-
-
-
   return (
     <CharacterContext.Provider value={{
-  characters,
-  selectedCharacter,
-  loading,
+      characters,
+      selectedCharacter,
+      loading,
 
-  fetchCharacters,
-  createCharacter: createCharacterFn,
-  updateCharacter: updateCharacterFn,
-  deleteCharacter: deleteCharacterFn,
+      fetchCharacters,
+      createCharacter: createCharacterFn,
+      updateCharacter: updateCharacterFn,
+      deleteCharacter: deleteCharacterFn,
 
-  selectCharacter,
-}}>
+      selectCharacter,
+    }}>
       {children}
     </CharacterContext.Provider>
   );

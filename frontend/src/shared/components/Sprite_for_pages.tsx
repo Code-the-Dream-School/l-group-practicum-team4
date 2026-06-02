@@ -42,7 +42,7 @@ export default function Sprite({
 			0,
 			size,
 			size, // destino (escalado)
-		); console.log(JSON.stringify(itemName));
+		); 
 	}, [tileset, size, itemName]);
 
 	return <canvas ref={canvasRef} />;

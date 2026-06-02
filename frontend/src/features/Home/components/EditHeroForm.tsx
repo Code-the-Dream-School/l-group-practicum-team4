@@ -47,8 +47,7 @@ export default function EditHeroForm({ hero, onSubmit, onCancel }: Props) {
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2>Edit Hero</h2>
 
-      {/* ✅ Read-only hero sprite */}
-      <div className={styles.preview}>
+        <div className={styles.preview}>
         <Sprite
           tileset={tileset}
           size={90}
@@ -56,7 +55,6 @@ export default function EditHeroForm({ hero, onSubmit, onCancel }: Props) {
         />
       </div>
 
-      {/* ✅ Only editable field */}
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}

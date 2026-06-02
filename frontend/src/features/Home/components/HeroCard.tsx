@@ -11,7 +11,6 @@ type HeroCardProps = {
   onDelete: () => void;
 };
 
-
 export default function HeroCard({
   character,
   selected,
@@ -50,31 +49,29 @@ export default function HeroCard({
       </div>
 
       <div className={styles.actions}>
-        {!character.isDefault && (
-          <div className={styles.iconActions}>
-            <button
-              className={styles.iconBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(character);
-              }}
-              title="Edit"
-            >
-              ✏️
-            </button>
+        <div className={styles.iconActions}>
+          <button
+            className={styles.iconBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(character);
+            }}
+            title="Edit"
+          >
+            ✏️
+          </button>
 
-            <button
-              className={styles.iconBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              title="Delete"
-            >
-              🗑️
-            </button>
-          </div>
-        )}
+          <button
+            className={styles.iconBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            title="Delete"
+          >
+            🗑️
+          </button>
+        </div>
       </div>
       <button className={styles.selectBtn} 
         onClick={(e) => {
@@ -82,7 +79,7 @@ export default function HeroCard({
           onSelect(character);
         }}>
           SELECT
-        </button>
+      </button>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState} from "react";
 import styles from "./NewHeroForm.module.css";
 import Sprite from "../../../shared/components/Sprite_for_pages";
 import tilesetImg from "../../../assets/dungeontileset.png";
@@ -72,10 +72,10 @@ export default function NewHeroForm({ onSubmit, onCancel,  }: Props) {
  
   const [selectedHero, setSelectedHero] = useState<HeroTemplate | null>(null);
   const [name, setName] = useState('')
-console.log("🔥 NewHeroForm is mounted");
+
   const handleSelectHero = (hero: HeroTemplate) => {
     setSelectedHero(hero);
-    console.log("clicked hero:", hero);
+    
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -93,6 +93,7 @@ console.log("🔥 NewHeroForm is mounted");
     });
   };
 
+  
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.title}> Create a hero</h2>
