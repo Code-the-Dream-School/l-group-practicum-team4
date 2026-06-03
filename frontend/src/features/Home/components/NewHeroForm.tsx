@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState} from "react";
 import styles from "./NewHeroForm.module.css";
-import Sprite from "../../../shared/components/Sprite_copy";
-import { newHeroes } from "../newHeroes";
+import Sprite from "../../../shared/components/Sprite_for_pages";
 import tilesetImg from "../../../assets/dungeontileset.png";
 
-type HeroFormData = {
+type HeroTemplate = {
+  id: string,
+  spriteKey: string,
   name: string;
   attack: number;
   defense: number;
@@ -12,76 +13,122 @@ type HeroFormData = {
   health: number;
 };
 
+type HeroFormData = {
+  name: string;
+  spriteKey: string,
+  health: number;
+  attack: number;
+  defense: number;
+  speed: number;
+};
+
 type Props = {
   onSubmit: (data: HeroFormData) => void;
   onCancel: () => void;
+ 
 };
 
 const tileset = new Image();
 tileset.src = tilesetImg;
 
-export default function NewHeroForm({ onSubmit, onCancel }: Props) {
-  const [form, setForm] = useState<HeroFormData>({
-    name: "",
-    attack: 10,
-    defense: 10,
+const initialHeroes = [
+  {
+    id: "1",
+    spriteKey: "Sportman",
+    name: "Sportman",
+    health: 120,
+    attack: 18,
+    defense: 20,
+    speed: 8,
+  },
+  { id: "2",
+    spriteKey: "Purple Girl",
+    name: "Purple Girl",
+    health: 80,
+    attack: 30,
+    defense: 8,
     speed: 10,
-    health: 100,
-  });
+  },
+  { id: "3", 
+    spriteKey: "Grey Hair Girl",
+    name: "Grey Hair Girl",
+    health: 90,
+    attack: 22,
+    defense: 10,
+    speed: 18,
+  },
+   { id: "4",
+    spriteKey: "Brown Mage",
+    name: "Brown Mage",
+    health: 90,
+    attack: 22,
+    defense: 10,
+    speed: 18,
+  },
+];
 
 
-  const [selectedHero, setSelectedHero] = useState<any | null>(null);
+export default function NewHeroForm({ onSubmit, onCancel,  }: Props) {
+ 
+  const [selectedHero, setSelectedHero] = useState<HeroTemplate | null>(null);
+  const [name, setName] = useState('')
 
-  const handleSelectHero = (hero: any) => {
+  const handleSelectHero = (hero: HeroTemplate) => {
     setSelectedHero(hero);
+    
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedHero) return;
-    onSubmit(form);
+    if (!selectedHero || !name) return;
+   
+    onSubmit({
+      name,
+      spriteKey: selectedHero.spriteKey, 
+      health: selectedHero.health,
+      attack: selectedHero.attack,
+      defense: selectedHero.defense,
+      speed: selectedHero.speed,
+    });
   };
 
+  
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <h2 className={styles.title}>Create New Hero</h2>
+      <h2 className={styles.title}> Create a hero</h2>
 
         <input
-        name="name"
-        placeholder="Hero name"
-        value={form.name}
-        onChange={(e) =>
-          setForm((prev) => ({
-            ...prev,
-            name: e.target.value,
-          }))
-        }
-      />
+          name="name"
+          placeholder="Hero name"
+          value={name}
+          onChange={(e) => setName (e.target.value)}
+        />
      
       <div className={styles.heroGrid}>
-        {newHeroes.map((hero) => (
+        {initialHeroes.map((hero) => (
           <div
             key={hero.id}
             className={`${styles.avatarCircle} ${
               selectedHero?.id === hero.id ? styles.selected : ""
             }`}
-            onClick={() => handleSelectHero(hero)}
+            onClick={() => handleSelectHero(hero)}             
           >
             <Sprite
               tileset={tileset}
               size={70}
-              itemName={hero.name}
+              itemName={hero.spriteKey}
             />
-          </div>
+           
+         </div>
         ))}
       </div>
 
       <div className={styles.stats}>
-        <p>❤️ {form.health}</p>
-        <p>⚔️ {form.attack}</p>
-        <p>🛡️ {form.defense}</p>
-        <p>👟 {form.speed}</p>
+        <p>❤️ {selectedHero?.health ?? "-"}</p>
+        <p>⚔️ {selectedHero?.attack ?? "-"}</p>
+        <p>🛡️ {selectedHero?.defense ?? "-"}</p>
+        <p>👟 {selectedHero?.speed ?? "-"}</p>
       </div>
 
       <div className={styles.actions}>
@@ -89,7 +136,7 @@ export default function NewHeroForm({ onSubmit, onCancel }: Props) {
           Cancel
         </button>
 
-        <button type="submit" disabled={!form.name || !selectedHero}>
+        <button type="submit" disabled={!name || !selectedHero}>
           Create Hero
         </button>
       </div>
