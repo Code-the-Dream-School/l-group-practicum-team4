@@ -91,6 +91,7 @@ const updateCharacter = async (req, res, next) => {
     return;
   }
   res.status(200).json({ char });
+  
 };
 
 const deleteCharacter = async (req, res) => {

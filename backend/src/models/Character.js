@@ -42,12 +42,16 @@ const CharacterSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
-      default: null
-    }
+      default: null,
+    },
+    spriteKey: {
+      type: String,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
+  
 );
 
 module.exports = mongoose.model("Character", CharacterSchema);
