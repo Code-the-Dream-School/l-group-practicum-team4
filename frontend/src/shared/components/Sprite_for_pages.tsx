@@ -42,7 +42,7 @@ export default function Sprite({
 			0,
 			size,
 			size, // destino (escalado)
-		);
+		); 
 	}, [tileset, size, itemName]);
 
 	return <canvas ref={canvasRef} />;

@@ -19,36 +19,27 @@ import { AuthProvider } from "./features/auth/context/AuthContext";
 
 function App() {
 	return (
-		<AuthProvider>
-			<DungeonProvider>
-				<MarketProvider>
-					<div className={styles["app-container"]}>
-						<Header title="DUNGEON BATTLE" />
-						<div className={styles["route-content"]}>
-							<Routes>
-								<Route
-									path="/"
-									element={
-										<ProtectedRoute>
-											<HomePage />
-										</ProtectedRoute>
-									}
-								/>
-								<Route path="/about" element={<AboutPage />} />
-								<Route
-									path="/register"
-									element={<RegisterPage />}
-								/>
-								<Route path="/login" element={<LoginPage />} />
+		<DungeonProvider>
+			<MarketProvider>
+				<div className={styles["app-container"]}>
+					<Header title="DUNGEON BATTLE" />
+					<div className={styles["route-content"]}>
+						<Routes>
+							<Route path="/about" element={<AboutPage />} />
+							<Route
+								path="/register"
+								element={<RegisterPage />}
+							/>
+							<Route path="/login" element={<LoginPage />} />
 
-								<Route
-									path="/market"
-									element={
-										<ProtectedRoute>
-											<MarketplacePage />
-										</ProtectedRoute>
-									}
-								/>
+							<Route
+								path="/market"
+								element={
+									<ProtectedRoute>
+										<MarketplacePage />
+									</ProtectedRoute>
+								}
+							/>
 
 								<Route
 									path="/dungeon"
