@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./AboutPage.module.css";
 import tilesetImg from "../../assets/dungeontileset.png";
-import Sprite from "../../shared/components/Sprite_copy";
+import Sprite from "../../shared/components/Sprite_for_pages";
 
 const tileset = new Image();
 tileset.src = tilesetImg;
