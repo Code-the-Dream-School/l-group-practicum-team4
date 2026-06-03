@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Character } from "../../../shared/models/models copy";
 
-
 const BASE_URL = "http://localhost:8080/api/character";
 
 const getAuthHeaders = () => {
@@ -53,7 +52,7 @@ export const createCharacter = async (newCharacter: Partial<Character>): Promise
       payload,
       {headers: getAuthHeaders(),}
     );
-
+ 
     return new Character({
       id: data.char._id,
       name: data.char.name,
@@ -80,7 +79,7 @@ export const updateCharacter = async (id: string, updatedCharacter: Partial<Char
       updatedCharacter,
       {headers: getAuthHeaders(),}
     );
-
+ 
     return new Character({
       id: data.char._id,
       name: data.char.name,
