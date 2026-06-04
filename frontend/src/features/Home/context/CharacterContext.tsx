@@ -24,15 +24,47 @@ type CharacterContextType = {
 export const CharacterContext = createContext<CharacterContextType | undefined>( undefined);
 
 export const CharacterProvider = ({ children,}:{ children: React.ReactNode; }) => {
+
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>( localStorage.getItem("token"));
+
+useEffect(() => {
+  const syncToken = () => {
+    setToken(localStorage.getItem("token"));
+  };
+
+  window.addEventListener("storage", syncToken);
+
+  return () => window.removeEventListener("storage", syncToken);
+}, []);
+
+
+  const getUserIdFromToken = (): string | null => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      return decoded?.userId || decoded?.id || decoded?.sub || null;
+    } catch(err) {
+      console.error("Failed to decode token:", err);
+      return null;
+    }
+  };
 
   const fetchCharacters = async () => {
     try {
       setLoading(true);
+    
+      const userId = getUserIdFromToken();
 
-      const data = await getAllCharacters();
+      if (!userId) {
+        console.warn("No userId found");
+        return;
+      }
+      const data = await getAllCharacters(userId)
 
       setCharacters(data);
 
@@ -78,6 +110,7 @@ export const CharacterProvider = ({ children,}:{ children: React.ReactNode; }) =
     }
   };
   
+
   const deleteCharacterFn = async (id: string) => {
     try {
       await apiDeleteCharacter(id);
@@ -94,9 +127,9 @@ export const CharacterProvider = ({ children,}:{ children: React.ReactNode; }) =
   };
 
 
-useEffect(() => {
-  fetchCharacters();
-}, []);
+  useEffect(() => {
+    fetchCharacters();
+  }, []);
 
 
   return (
