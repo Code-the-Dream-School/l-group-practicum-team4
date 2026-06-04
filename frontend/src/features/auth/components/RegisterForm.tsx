@@ -2,11 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/useAuth";
 import styles from "./RegisterForm.module.css";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import {
-// 	faEye,
-// 	faEyeSlash,
-// } from "@fortawesome/free-solid-svg-icons";
 
 type FormState = {
   name: string;

@@ -13,10 +13,13 @@ const getAuthHeaders = () => {
 };
 
 
-export const getAllCharacters = async():Promise <Character[]> => {
-  try {
-    const {data} = await axios.get(BASE_URL, {headers: getAuthHeaders()});
-    
+export const getAllCharacters = async(userId: string):Promise <Character[]> => {
+ try {
+    const { data } = await axios.get(BASE_URL, {
+      headers: getAuthHeaders(),
+      params: userId ? { uid: userId } : undefined,
+    });
+
     return data.chars.map((character: any) =>
       new Character({
         id: character._id,
@@ -25,7 +28,9 @@ export const getAllCharacters = async():Promise <Character[]> => {
         attack: character.attack,
         defense: character.defense,
         speed: character.speed,
-        spriteKey: character.spriteKey,
+        spriteKey: character.spriteKey, 
+        coins: character.coins,
+        inventory: character.inventory,
       }));
 
   } catch (error: any) {
@@ -37,12 +42,17 @@ export const getAllCharacters = async():Promise <Character[]> => {
 
 export const createCharacter = async (newCharacter: Partial<Character>): Promise<Character> => {
   try {
+    const payload = {
+      ...newCharacter,
+      coins: newCharacter.coins ?? 0,
+      inventory: newCharacter.inventory ?? [],
+    };
     const { data } = await axios.post(
       BASE_URL,
-      newCharacter,
+      payload,
       {headers: getAuthHeaders(),}
     );
-
+ 
     return new Character({
       id: data.char._id,
       name: data.char.name,
@@ -51,6 +61,8 @@ export const createCharacter = async (newCharacter: Partial<Character>): Promise
       defense: data.char.defense,
       speed: data.char.speed,
       spriteKey: data.char.spriteKey,
+      coins: data.char.coins,
+      inventory: data.char.inventory,
     });
 
   } catch (error: any) {
@@ -61,11 +73,13 @@ export const createCharacter = async (newCharacter: Partial<Character>): Promise
 
 export const updateCharacter = async (id: string, updatedCharacter: Partial<Character>): Promise<Character> => {
   try {
+    
     const { data } = await axios.patch(
       `${BASE_URL}/${id}`,
       updatedCharacter,
       {headers: getAuthHeaders(),}
     );
+ 
     return new Character({
       id: data.char._id,
       name: data.char.name,
@@ -74,6 +88,8 @@ export const updateCharacter = async (id: string, updatedCharacter: Partial<Char
       defense: data.char.defense,
       speed: data.char.speed,
       spriteKey: data.char.spriteKey,
+      coins: data.char.coins,
+      inventory: data.char.inventory,
     });
   
   } catch (error: any) {
@@ -97,3 +113,5 @@ export const deleteCharacter = async (id: string): Promise<string> => {
     throw new Error(message);
   }
 };
+
+
