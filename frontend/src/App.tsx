@@ -26,6 +26,12 @@ function App() {
 						<Header title="DUNGEON BATTLE" />
 						<div className={styles["route-content"]}>
 							<Routes>
+								<Route path="/about" element={<AboutPage />} />
+								<Route
+									path="/register"
+									element={<RegisterPage />}
+								/>
+								<Route path="/login" element={<LoginPage />} />
 								<Route
 									path="/"
 									element={
@@ -34,13 +40,6 @@ function App() {
 										</ProtectedRoute>
 									}
 								/>
-								<Route path="/about" element={<AboutPage />} />
-								<Route
-									path="/register"
-									element={<RegisterPage />}
-								/>
-								<Route path="/login" element={<LoginPage />} />
-
 								<Route
 									path="/market"
 									element={
