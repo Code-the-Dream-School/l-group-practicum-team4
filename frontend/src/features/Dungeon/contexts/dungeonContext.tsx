@@ -16,6 +16,7 @@ import type {
 	Chest,
 	DroppedItem,
 } from "../../../shared/models/models";
+import { useAuth } from "../../auth/context/useAuth";
 
 interface DungeonContextType {
 	state: typeof initialStates;
@@ -38,6 +39,8 @@ interface DungeonContextType {
 const DungeonContext = createContext<DungeonContextType | undefined>(undefined);
 
 export function DungeonProvider({ children }: { children: ReactNode }) {
+	const { state: authState } = useAuth();
+
 	const [state, dispatch] = useReducer(reducer, initialStates);
 
 	const enemiesRef = useRef(state.enemies);
@@ -122,6 +125,8 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			if (!authState.token) return;
+
 			if (!state.seed) return;
 
 			isLoading(true);
@@ -175,7 +180,7 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		};
 
 		fetchData();
-	}, [state.seed, enemiesRef]);
+	}, [state.seed, enemiesRef, authState.token]);
 
 	return (
 		<DungeonContext.Provider
