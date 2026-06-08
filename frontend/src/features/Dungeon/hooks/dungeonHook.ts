@@ -15,7 +15,7 @@ import type {
 	Chest,
 } from "../../../shared/models/models";
 import { Enemy, DroppedItem } from "../../../shared/models/models";
-import { useMarket } from "../../Marketplace/contexts/useMarket";
+import { useMarket } from "../../Marketplace/hook/useMarket";
 
 export const useDungeon = () => {
 	const {

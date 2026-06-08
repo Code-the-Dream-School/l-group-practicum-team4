@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { MarketContext } from "./MarketContext";
+import { MarketContext } from "../contexts/MarketContext";
 
 export const useMarket = () => {
   const context = useContext(MarketContext)

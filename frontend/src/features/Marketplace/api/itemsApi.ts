@@ -1,141 +1,88 @@
-import axios from "axios";
 import type { Item } from "../../../shared/models/models";
-import { allItems } from "../allItems";
-
-const BASE_URL = "http://localhost:8080/api/item";
+import { api } from "../../../shared/services/api";
 
 export const getItems = async (): Promise<Item[]> => {
   try {
-    const { data } = await axios.get(BASE_URL);
+    const { data } = await api.get("/item");
     const items = data.items;
+
+    if (!items) return [];
+
+    return items.map((item: any) => ({
+      ...item,
       
-    if (!items || items.length === 0) {
-      return allItems;
-    }
-    return items;
-  } catch (err) {
-    return allItems;
+    }));
+  } catch {
+    return [];
   }
 };
 
+
+export const getItem = async (id: string) => {
+  const { data } = await api.get(`/item/${id}`);
+  return data.item;
+};
+
+
+export const createItem = async (data: any) => {
+  const res = await api.post("/item", data);
+  return res.data.item;
+};
+
+
+export const updateItem = async (id: string, data: any) => {
+  const res = await api.put(`/item/${id}`, data);
+  return res.data.item;
+};
+
+
+export const deleteItem = async (id: string) => {
+  const res = await api.delete(`/item/${id}`);
+  return res.data.message;
+};
+
+
+
 export const buySellItem = async (
-  characterId: string,
-  itemId: string,
+  charId: string,
+  item: Item,
   buy: boolean
 ) => {
-  const token = localStorage.getItem("token");
+   
+  if (!item) {
+    throw new Error("Item missing id");
+  }
 
-  const { data } = await axios.post(
-    `http://localhost:8080/api/character/market`,
-    {},
-    {
-      params: {
-        cid: characterId,
-        iid: itemId,
-        buy,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+  const { data } = await api.patch(
+    `/character/buysell?cid=${charId}&iid=${item}&buy=${buy}`
   );
 
   return data.updatedChar;
 };
 
-// export const buySellItem = async (
-//   cid: string,
-//   iid: string,
-//   buy: boolean
-// ): Promise<Character> => {
-//   try {
-//     const { data } = await axios.post(
-//       `${BASE_URL}/buy-sell`,
-//       null,
-//       {
-//         params: {
-//           cid,
-//           iid,
-//           buy: buy.toString()
-//         },
-//         headers: getAuthHeaders()
-//       }
-//     );
 
-//     return new Character({
-//       id: data.updatedChar._id,
-//       name: data.updatedChar.name,
-//       health: data.updatedChar.health,
-//       attack: data.updatedChar.attack,
-//       defense: data.updatedChar.defense,
-//       speed: data.updatedChar.speed,
-//       spriteKey: data.updatedChar.spriteKey,
-//     });
-//   } catch (error: any) {
-//     throw new Error(
-//       error?.response?.data?.message || "Failed buy/sell item"
-//     );
-//   }
-// };
+export const equipItem = async (charId: string, item: Item) => {
+  const { data } = await api.patch(`/character/equip?cid=${charId}`, {
+    item,
+  });
 
+  return data;
+};
 
-// export const equipItem = async (
-//   cid: string,
-//   item: any
-// ): Promise<Character> => {
-//   try {
-//     const { data } = await axios.post(
-//       `${BASE_URL}/equip`,
-//       { item },
-//       {
-//         params: { cid },
-//         headers: getAuthHeaders()
-//       }
-//     );
+export const unequipItem = async (
+  charId: string,
+  slot: "weapon" | "armor" | "helmet" | "shield",
+  item: Item
+) => {
+  const { data } = await api.patch(
+    `/character/unequip?cid=${charId}&slot=${slot}`,
+    {
+      item: {
+        name: item.name,
+        type: item.type,
+      },
+    }
+  );
 
-//     return new Character({
-//       id: data.updatedChar._id,
-//       name: data.updatedChar.name,
-//       health: data.updatedChar.health,
-//       attack: data.updatedChar.attack,
-//       defense: data.updatedChar.defense,
-//       speed: data.updatedChar.speed,
-//       spriteKey: data.updatedChar.spriteKey,
-//     });
-//   } catch (error: any) {
-//     throw new Error(
-//       error?.response?.data?.message || "Failed to equip item"
-//     );
-//   }
-// };
-
-
-// export const unequipItem = async (
-//   cid: string,
-//   slot: string
-// ): Promise<Character> => {
-//   try {
-//     const { data } = await axios.post(
-//       `${BASE_URL}/unequip`,
-//       null,
-//       {
-//         params: { cid, slot },
-//         headers: getAuthHeaders()
-//       }
-//     );
-
-//     return new Character({
-//       id: data.updatedChar._id,
-//       name: data.updatedChar.name,
-//       health: data.updatedChar.health,
-//       attack: data.updatedChar.attack,
-//       defense: data.updatedChar.defense,
-//       speed: data.updatedChar.speed,
-//       spriteKey: data.updatedChar.spriteKey,
-//     });
-//   } catch (error: any) {
-//     throw new Error(
-//       error?.response?.data?.message || "Failed to unequip item"
-//     );
-//   }
-// };
+  return data;
+};
