@@ -1,26 +1,15 @@
-import axios from "axios";
 import { Character } from "../../../shared/models/models copy";
-
-const BASE_URL = "http://localhost:8080/api/character";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  if (!token) throw new Error('No auth token found');
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`
-  };
-};
+import {api} from "../../../shared/services/api"
 
 
 export const getAllCharacters = async(userId: string):Promise <Character[]> => {
  try {
-    const { data } = await axios.get(BASE_URL, {
-      headers: getAuthHeaders(),
-      params: userId ? { uid: userId } : undefined,
-    });
+const { data } = await api.get("/character", {
+	params: userId ? { uid: userId } : undefined,
+});
 
-    return data.chars.map((character: any) =>
+    return data.chars.map((character: any) => 
+        
       new Character({
         id: character._id,
         name: character.name,
@@ -30,8 +19,11 @@ export const getAllCharacters = async(userId: string):Promise <Character[]> => {
         speed: character.speed,
         spriteKey: character.spriteKey, 
         coins: character.coins,
-        inventory: character.inventory,
-      }));
+        inventory: character.inventory.map((item: any) => ({
+        ...item,
+        id: item._id 
+      }))
+    }));
 
   } catch (error: any) {
       const message = error?.response?.data?.message || "Failed to fetch characters";
@@ -47,11 +39,7 @@ export const createCharacter = async (newCharacter: Partial<Character>): Promise
       coins: newCharacter.coins ?? 0,
       inventory: newCharacter.inventory ?? [],
     };
-    const { data } = await axios.post(
-      BASE_URL,
-      payload,
-      {headers: getAuthHeaders(),}
-    );
+    const { data } = await api.post("/character", payload);
  
     return new Character({
       id: data.char._id,
@@ -73,13 +61,8 @@ export const createCharacter = async (newCharacter: Partial<Character>): Promise
 
 export const updateCharacter = async (id: string, updatedCharacter: Partial<Character>): Promise<Character> => {
   try {
-    
-    const { data } = await axios.patch(
-      `${BASE_URL}/${id}`,
-      updatedCharacter,
-      {headers: getAuthHeaders(),}
-    );
- 
+    const { data } = await api.patch(`/character/${id}`, updatedCharacter);
+  
     return new Character({
       id: data.char._id,
       name: data.char.name,
@@ -101,11 +84,7 @@ export const updateCharacter = async (id: string, updatedCharacter: Partial<Char
 
 export const deleteCharacter = async (id: string): Promise<string> => {
   try {
-    const { data } = await axios.delete(
-      `${BASE_URL}/${id}`,
-      {headers: getAuthHeaders(),}
-    );
-
+    const { data } = await api.delete(`/character/${id}`);
     return data.message;
   
   } catch (error: any) {

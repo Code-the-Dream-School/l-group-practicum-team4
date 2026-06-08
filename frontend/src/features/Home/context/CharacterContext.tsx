@@ -8,7 +8,6 @@ import {
   getAllCharacters,
 } from "../api/CharacterApi";
 
-
 type CharacterContextType = {
   characters: Character[];
   selectedCharacter: Character | null;

@@ -1,5 +1,5 @@
 import styles from "./MarketPage.module.css";
-import MarketPanel from "../components/NewMarketPanel";
+import MarketPanel from "../components/MarketPanel";
 
 
 const MarketplacePage = () => {

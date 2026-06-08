@@ -1,43 +1,58 @@
 .marketPanel {
-  width: 40%;
-  background: #fff2d2;
-  border-radius: 20px;
+  width: 80%;
+  background: #e38a33;
+  border-radius: 18px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .marketHeader {
-  background: #e8893a;
   text-align: center;
-  padding: 20px;
+  font-size: 2rem;
   font-weight: bold;
-  font-size: 18px;
+  padding: 1rem;
+  background: #e38a33;
+  color: black;
 }
 
-.marketTabs {
+.marketContent {
   display: flex;
-  justify-content: space-around;
-  padding: 10px;
+  background: #efe7c9;
+  min-height: 500px;
 }
 
-.tab {
-  border: none;
-  background: transparent;
-  font-weight: bold;
-  cursor: pointer;
-  color: #555;
-  font-size: 18px;
+.marketSection {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.active {
-  color: #e8893a;
+.marketDivider {
+  width: 2px;
+  background: #c98b3c;
 }
 
-
-
-/* GOLD BAR */
-.marketGold {
-  background: #e8893a;
-  padding: 12px;
+.sectionTitle {
   text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
   font-weight: bold;
+}
+
+.sectionTitle.buy {
+  color: #1e9e7a;
+}
+
+.sectionTitle.sell {
+  color: #e38a33;
+}
+
+.marketGold {
+  text-align: center;
+  padding: 1rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+  background: #e38a33;
 }
