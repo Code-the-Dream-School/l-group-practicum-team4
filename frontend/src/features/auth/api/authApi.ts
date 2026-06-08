@@ -1,8 +1,4 @@
-import axios from "axios"
-
-const api = axios.create({
-  baseURL: "http://localhost:8080/api",
-});
+import { api } from "../../../shared/services/api";
 
 export const registerUser = async (name:string, email: string, password:string) => {
   try {
