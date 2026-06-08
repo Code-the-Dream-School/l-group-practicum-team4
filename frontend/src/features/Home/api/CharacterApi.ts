@@ -31,12 +31,11 @@ export const getAllCharacters = async(userId: string):Promise <Character[]> => {
         speed: character.speed,
         spriteKey: character.spriteKey, 
         coins: character.coins,
-        // inventory: character.inventory,
         inventory: character.inventory.map((item: any) => ({
-  ...item,
-  id: item._id 
-}))
-      }));
+        ...item,
+        id: item._id 
+      }))
+    }));
 
   } catch (error: any) {
       const message = error?.response?.data?.message || "Failed to fetch characters";

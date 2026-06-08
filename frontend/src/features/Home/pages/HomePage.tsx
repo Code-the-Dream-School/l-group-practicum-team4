@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCharacter } from "../hook/useCharacter";
 import { useNavigate } from "react-router";
-import { defaultHeroes } from "../heroes";
+
 import tilesetImg from "../../../assets/dungeontileset.png";
 
 import HomePageView from "./HomePageView";
@@ -30,8 +30,8 @@ export default function HomePage() {
     id: c._id || c.id,
   }));
 
-  const allHeroes = [...defaultHeroes, ...normalizedCharacters];
-
+  const allHeroes = [...normalizedCharacters];
+ 
   const handleCreate = () => {
     setEditingCharacter(null);
     setShowForm(true);
@@ -52,7 +52,7 @@ export default function HomePage() {
 
   const handleSubmit = async (formData: any) => {
     if (editingCharacter) {
-      await updateCharacter(
+      await updateCharacter(  
         editingCharacter._id || editingCharacter.id,
         formData
       );
