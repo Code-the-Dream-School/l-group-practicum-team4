@@ -1,0 +1,12 @@
+.container {
+	margin: 0px;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+.align-vertical {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}

@@ -1,3 +1,37 @@
+export interface Dungeon {
+	_id: string;
+	user: string;
+	seed: number;
+	width: number;
+	height: number;
+	level: number;
+	tiles: MapTile[][];
+	enemies: DungeonEnemy[];
+	traps: Trap[];
+	chests: Chest[];
+}
+
+export class MapTile {
+	x: number;
+	y: number;
+	type: string;
+	passable: boolean;
+	object: string | null;
+
+	constructor(data: Partial<MapTile>) {
+		this.x = data.x || 0;
+		this.y = data.y || 0;
+		this.type = data.type || "wall";
+		this.passable = data.passable || false;
+		this.object = data.object || null;
+	}
+}
+
+interface DungeonEnemy {
+	enemy: Enemy;
+	status: string;
+}
+
 export class Character {
 	x: number;
 	y: number;
@@ -145,10 +179,14 @@ export class Player extends Character {}
 
 export class Enemy extends Character {
 	id: number;
+	index: number;
+	status: string;
 
 	constructor(data: Partial<Enemy>) {
 		super(data);
 		this.id = data.id ?? 0;
+		this.index = data.index ?? -1;
+		this.status = data.status ?? "active";
 	}
 }
 
@@ -182,15 +220,7 @@ export class DroppedItem {
 	}
 }
 
-export interface MapTile {
-	x: number;
-	y: number;
-	type: string;
-	passable: boolean;
-	object: string | null;
-}
-
-class TilePosition {
+export class TilePosition {
 	x: number;
 	y: number;
 	constructor(data: Partial<TilePosition>) {
@@ -198,6 +228,10 @@ class TilePosition {
 		this.y = data.y ?? 0;
 	}
 }
+
+export class Entrance extends TilePosition {}
+
+export class Exit extends TilePosition {}
 
 export class Trap extends TilePosition {}
 

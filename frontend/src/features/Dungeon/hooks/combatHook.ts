@@ -20,6 +20,7 @@ export const useCombat = () => {
 		state: dungeonState,
 		setPlayer,
 		setEnemy,
+		delEnemy,
 		setEnemies,
 		DropItem,
 	} = useDungeon();
@@ -122,10 +123,7 @@ export const useCombat = () => {
 			if (!enemy || !dungeonState.enemies) return;
 
 			//Remove enemy from list
-			const newEnemies = dungeonState.enemies.filter(
-				(e: Enemy) => e.id !== enemy.id,
-			);
-			setEnemies(newEnemies);
+			delEnemy(enemy);
 
 			//Unselect enemy
 			setEnemy(null);
@@ -137,13 +135,13 @@ export const useCombat = () => {
 				toasterId: "main",
 			});
 		},
-		[DropItems, dungeonState.enemies, setEnemies, setEnemy],
+		[DropItems, delEnemy, dungeonState.enemies, setEnemy],
 	);
 
 	const playerDeath = useCallback((player: Player) => {
 		if (!player) return;
 
-		//Unselect enemy
+		//Unselect player
 		//setPlayer(null);
 
 		//Drop player items

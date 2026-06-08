@@ -1,20 +1,19 @@
 import { useEffect, useRef } from "react";
 
-interface SpriteProps {
-	tileset: HTMLImageElement | null;
-	size?: number;
-	itemName?: string;
-}
-
 export default function Sprite({
 	tileset,
 	size = 48,
 	itemName = "",
-}: SpriteProps) {
+}: {
+	tileset?: HTMLImageElement | null;
+	size?: number;
+	itemName?: string;
+}) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
+
 		if (!canvas || !tileset) return;
 
 		const ctx = canvas.getContext("2d");
@@ -104,6 +103,10 @@ function getPosition(name: string) {
 		case "Blue Potion":
 			col = 8;
 			row = 9;
+			break;
+		case "Dungeon":
+			col = 7;
+			row = 1;
 			break;
 		default:
 			col = 0;

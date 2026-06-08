@@ -1,11 +1,21 @@
-import type { Chest, Trap, Enemy, DroppedItem } from "../models/models";
+import type {
+	Entrance,
+	Exit,
+	Chest,
+	Trap,
+	Enemy,
+	DroppedItem,
+} from "../models/models";
 
 export type GameObject =
-	// | Entrance
+	| Entrance
 	// | Door
-	// | Exit
+	| Exit
 	// | Wall
-	Chest | Trap | Enemy | DroppedItem;
+	| Chest
+	| Trap
+	| Enemy
+	| DroppedItem;
 
 export type GameEventType =
 	| "ObjectActivated"
