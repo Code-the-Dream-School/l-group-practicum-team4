@@ -2,19 +2,26 @@ import {
 	createContext,
 	useReducer,
 	useEffect,
-	useRef,
+	useState,
 	type ReactNode,
+	useCallback,
 } from "react";
 import { reducer, initialStates, actions } from "../reducer/dungeonReducer";
-import { getDungeon } from "../services/apiService";
 import { EnemyGenerator } from "../services/drawService";
-import type {
-	Player,
-	Enemy,
+import {
+	getDungeon,
+	getDungeons,
+	newDungeon,
+	updateDungeon,
+} from "../services/apiService";
+import {
 	MapTile,
-	Trap,
-	Chest,
-	DroppedItem,
+	type Dungeon,
+	type Player,
+	Enemy,
+	type Trap,
+	type Chest,
+	type DroppedItem,
 } from "../../../shared/models/models";
 import { useAuth } from "../../auth/context/useAuth";
 
@@ -22,15 +29,20 @@ interface DungeonContextType {
 	state: typeof initialStates;
 	isLoading: (value: boolean) => void;
 	setTileset: (tileset: HTMLImageElement) => void;
-	setMap: (map: MapTile[][]) => void;
 	setPlayer: (updates: Partial<Player> | null) => void;
-	setEnemy: (updates: Partial<Enemy> | null) => void;
 	setEnemies: (updates: Enemy[] | undefined) => void;
+	newEnemy: (updates: Enemy) => void;
+	delEnemy: (updates: Enemy) => void;
+	setEnemy: (updates: Partial<Enemy> | null) => void;
+	createDungeon: () => Promise<void>;
+	nextDungeon: () => void;
+	previousDungeon: () => void;
 	getObjectsPosition: (
 		map: MapTile[][],
 		objectType: string,
 	) => { x: number; y: number }[];
 	setTraps: (updates: Trap[] | undefined) => void;
+	removeObject: (object: Trap | Chest) => void;
 	setChests: (updates: Chest[] | undefined) => void;
 	setDroppedItems: (updates: DroppedItem[]) => void;
 	addDroppedItem: (updates: DroppedItem) => void;
@@ -39,12 +51,16 @@ interface DungeonContextType {
 const DungeonContext = createContext<DungeonContextType | undefined>(undefined);
 
 export function DungeonProvider({ children }: { children: ReactNode }) {
+	const [dungeonsUpdated, setDungeonsUpdated] = useState(false);
+	const [dungeonUpdated, setDungeonUpdated] = useState(false);
+
 	const { state: authState } = useAuth();
 
 	const [state, dispatch] = useReducer(reducer, initialStates);
 
-	const enemiesRef = useRef(state.enemies);
+	const TILE_SIZE = 32;
 
+	//#region Exported functions
 	const isLoading = (value: boolean) => {
 		dispatch({
 			type: actions.IS_LOADING,
@@ -59,10 +75,17 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		});
 	};
 
-	const setMap = (map: MapTile[][]) => {
+	const setDungeons = (dungeons: Dungeon[]) => {
 		dispatch({
-			type: actions.SET_MAP,
-			payload: map,
+			type: actions.SET_DUNGEONS,
+			payload: dungeons,
+		});
+	};
+
+	const setDungeon = (dungeon: Dungeon) => {
+		dispatch({
+			type: actions.SET_DUNGEON,
+			payload: dungeon,
 		});
 	};
 
@@ -73,6 +96,28 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		});
 	};
 
+	const setEnemies = (updates: Enemy[] | undefined) => {
+		dispatch({ type: actions.SET_ENEMIES, payload: updates });
+	};
+
+	const newEnemy = (enemy: Enemy) => {
+		if (!state.dungeon) return;
+
+		const tile = new MapTile(state.dungeon.tiles[enemy.y][enemy.x]);
+		if (!tile) return;
+
+		tile.object = "enemy_spawn";
+
+		dispatch({ type: actions.NEW_ENEMY, payload: enemy });
+		dispatch({ type: actions.SET_TILE, payload: tile });
+		setDungeonUpdated(true);
+	};
+
+	const delEnemy = (udpates: Enemy) => {
+		dispatch({ type: actions.DEL_ENEMY, payload: udpates });
+		setDungeonUpdated(true);
+	};
+
 	const setEnemy = (updates: Partial<Enemy> | null) => {
 		dispatch({
 			type: actions.SET_ENEMY,
@@ -80,12 +125,21 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		});
 	};
 
-	const setEnemies = (updates: Enemy[] | undefined) => {
-		dispatch({ type: actions.SET_ENEMIES, payload: updates });
-	};
-
 	const setTraps = (updates: Trap[] | undefined) => {
 		dispatch({ type: actions.SET_TRAPS, payload: updates });
+	};
+
+	const removeObject = (object: Trap | Chest) => {
+		if (!state.dungeon) return;
+
+		const tile = new MapTile(state.dungeon.tiles[object.y][object.x]);
+		if (!tile) return;
+
+		tile.object = null;
+
+		dispatch({ type: actions.SET_TILE, payload: tile });
+
+		setDungeonUpdated(true);
 	};
 
 	const setChests = (updates: Chest[] | undefined) => {
@@ -103,6 +157,7 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 	const delDroppedItem = (updates: DroppedItem) => {
 		dispatch({ type: actions.DELDROPPEDITEM, payload: updates });
 	};
+	//#endregion
 
 	const getObjectsPosition = (
 		map: MapTile[][],
@@ -123,64 +178,154 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		return positions;
 	};
 
+	const createDungeon = async () => {
+		const getRandomSize = (min: number, max: number): number => {
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		};
+
+		isLoading(true);
+
+		const level = (state.dungeons?.length ?? 0) + 1;
+		const width = getRandomSize(10, 20) * level;
+		const height = getRandomSize(10, 20) * level;
+
+		//Create dungeon
+		const newDungeonData = await newDungeon(width, height, level);
+
+		//Load new dungeon
+		if (newDungeonData) {
+			setDungeonsUpdated(true);
+		}
+
+		isLoading(false);
+	};
+
+	const previousDungeon = () => {
+		if (
+			!state.dungeon ||
+			state.dungeon.level === 1 ||
+			!state.dungeons ||
+			state.dungeons.length <= 1
+		)
+			return;
+
+		const dungeon = state.dungeons?.find(
+			(d) => d.level === state.dungeon.level - 1,
+		);
+
+		if (!dungeon) return;
+
+		fetchDungeon(dungeon._id);
+	};
+
+	const nextDungeon = () => {
+		if (!state.dungeon || !state.dungeons || state.dungeons.length === 0)
+			return;
+
+		//New dungeon
+		if (state.dungeons.every((d) => d.level <= state.dungeon.level))
+			createDungeon();
+
+		//next dungeon
+		const dungeon = state.dungeons?.find(
+			(d) => d.level === state.dungeon.level + 1,
+		);
+
+		if (!dungeon) return;
+
+		fetchDungeon(dungeon._id);
+	};
+
+	const LoadDungeonData = useCallback(() => {
+		if (!state.dungeon) return;
+
+		//Enemies
+		const enemyList = state.dungeon?.enemies.map((e) => {
+			const enemy = new Enemy(e.enemy);
+			enemy.status = e.status;
+			return enemy;
+		});
+		if (enemyList && enemyList.length > 0) {
+			EnemyGenerator(state.dungeon.tiles, enemyList);
+
+			setEnemies(enemyList);
+		}
+
+		//Traps
+		const traps = getObjectsPosition(state.dungeon.tiles, "trap");
+		setTraps(traps);
+
+		//Chests
+		const chests = getObjectsPosition(state.dungeon.tiles, "chest");
+		setChests(chests);
+	}, [state.dungeon]);
+
+	useEffect(() => {
+		if (!dungeonUpdated || !state.dungeon) return;
+
+		updateDungeon(state.dungeon);
+
+		LoadDungeonData();
+
+		setDungeonUpdated(false);
+	}, [dungeonUpdated, LoadDungeonData, state.dungeon]);
+
+	useEffect(() => {
+		if (!state.dungeon) return;
+
+		//Player
+		const entrancePos = getObjectsPosition(state.dungeon.tiles, "entrance");
+
+		if (entrancePos.length > 0) {
+			const entranceX = entrancePos[0].x;
+			const entranceY = entrancePos[0].y;
+			let playerPos = { x: entrancePos[0].x, y: entrancePos[0].y };
+
+			if (state.dungeon.tiles[entranceY][entranceX + 1]?.passable)
+				playerPos = { x: entranceX + 1, y: entranceY };
+			else if (state.dungeon.tiles[entranceY + 1][entranceX]?.passable)
+				playerPos = { x: entranceX, y: entranceY + 1 };
+			else if (state.dungeon.tiles[entranceY][entranceX - 1]?.passable)
+				playerPos = { x: entranceX - 1, y: entranceY };
+			else if (state.dungeon.tiles[entranceY - 1][entranceX]?.passable)
+				playerPos = { x: entranceX, y: entranceY - 1 };
+
+			setPlayer({
+				x: playerPos.x * TILE_SIZE + TILE_SIZE / 2,
+				y: playerPos.y * TILE_SIZE + TILE_SIZE / 2,
+			});
+		}
+
+		LoadDungeonData();
+	}, [LoadDungeonData, state.dungeon]);
+
+	const fetchDungeon = useCallback(async (dungeonId: string) => {
+		const dungeon = await getDungeon(dungeonId);
+		if (dungeon) {
+			setDungeon(dungeon);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (state.dungeons && state.dungeons.length > 0) {
+			const lastDungeon = state.dungeons[state.dungeons.length - 1];
+			fetchDungeon(lastDungeon._id);
+		}
+	}, [state.dungeons, fetchDungeon]);
+
 	useEffect(() => {
 		const fetchData = async () => {
-			if (!authState.token) return;
+			if (!authState.isAuthenticated || !authState.token) return;
 
-			if (!state.seed) return;
-
-			isLoading(true);
-			const TILE_SIZE = 32;
-
-			const data = await getDungeon("6a07ace480aeb4e0c56763e0");
-			const dungeon = data.dungeon;
-
-			//Map
-			setMap(dungeon.tiles);
-
-			//Player
-			const entrancePos = getObjectsPosition(dungeon.tiles, "entrance");
-			if (entrancePos.length > 0) {
-				setPlayer({
-					x: entrancePos[0].x * TILE_SIZE + TILE_SIZE / 2,
-					y: entrancePos[0].y * TILE_SIZE + TILE_SIZE / 2,
-				});
+			//Fetch and load dungeons data
+			const dungeonsData = await getDungeons();
+			if (dungeonsData.dungeons) {
+				setDungeons(dungeonsData.dungeons);
 			}
-
-			//Enemies
-			if (enemiesRef.current && enemiesRef.current.length > 0) {
-				const placedEnemies = EnemyGenerator(
-					dungeon.tiles,
-					state.seed,
-					enemiesRef.current,
-				);
-				placedEnemies.forEach((placedEnemy) => {
-					enemiesRef.current?.map((enemy) => {
-						if (enemy.id == placedEnemy.id) {
-							enemy.x = placedEnemy.x;
-							enemy.y = placedEnemy.y;
-						}
-					});
-				});
-				const newEnemies = enemiesRef.current?.filter(
-					(item) => !(item.x == 0 && item.y == 0),
-				);
-				setEnemies(newEnemies);
-			}
-
-			//Traps
-			const traps = getObjectsPosition(dungeon.tiles, "trap");
-			if (traps.length > 0) setTraps(traps);
-
-			//Chests
-			const chests = getObjectsPosition(dungeon.tiles, "chest");
-			if (chests.length > 0) setChests(chests);
-
-			isLoading(false);
 		};
 
 		fetchData();
-	}, [state.seed, enemiesRef, authState.token]);
+	}, [authState.isAuthenticated, authState.token, dungeonsUpdated]);
 
 	return (
 		<DungeonContext.Provider
@@ -188,16 +333,21 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 				state,
 				isLoading,
 				setTileset,
-				setMap,
 				setPlayer,
-				setEnemy,
 				setEnemies,
-				getObjectsPosition,
+				newEnemy,
+				delEnemy,
+				setEnemy,
 				setTraps,
+				removeObject,
 				setChests,
+				createDungeon,
+				getObjectsPosition,
 				setDroppedItems,
 				addDroppedItem,
 				delDroppedItem,
+				previousDungeon,
+				nextDungeon,
 			}}
 		>
 			{children}

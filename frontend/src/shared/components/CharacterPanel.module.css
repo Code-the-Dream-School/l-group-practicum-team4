@@ -29,12 +29,16 @@
 }
 
 .header-container {
-	height: 100px;
 	border-radius: 24px 24px 0px 0px;
 	background-color: var(--bg-basic);
 	display: flex;
 	align-items: flex-end;
 	justify-content: space-around;
+}
+
+.header {
+	margin-top: 80px;
+	display: flex;
 }
 
 .tab {
@@ -112,6 +116,7 @@
 .stat label {
 	font-family: "Fredoka";
 	font-weight: 600;
+	font-size: 16px;
 	color: var(--text-color);
 	margin: 0px;
 }
@@ -120,6 +125,7 @@
 	margin: 0px;
 	font-family: "Fredoka";
 	font-weight: 600;
+	font-size: 16px;
 	color: var(--textAlt-color);
 }
 

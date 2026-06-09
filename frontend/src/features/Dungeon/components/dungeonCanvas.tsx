@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import styles from "./dungeonCanvas.module.css";
 import { useDungeon } from "../hooks/dungeonHook";
-import { Enemy } from "../../../shared/models/models";
+import { Enemy, TilePosition } from "../../../shared/models/models";
 import {
 	gameEvents,
 	type GameEvent,
@@ -12,7 +12,6 @@ import { type Explosion } from "../services/drawService";
 export default function DungeonCanvas() {
 	const {
 		state: dungeonState,
-		setTileset,
 		setPlayer,
 		setEnemy,
 		MapDraw,
@@ -24,6 +23,8 @@ export default function DungeonCanvas() {
 		DrawExplosions,
 		ActivateChest,
 		PickUpDroppedItem,
+		previousDungeon,
+		nextDungeon,
 	} = useDungeon();
 
 	const { CheckCollisions } = useCollision(dungeonState);
@@ -40,33 +41,18 @@ export default function DungeonCanvas() {
 
 	const [explosions, setExplosions] = useState<Explosion[]>([]);
 
-	//#region Load tileset
-	const imgRef = useRef<HTMLImageElement>(null);
-
-	useEffect(() => {
-		const img = new Image();
-		imgRef.current = img;
-
-		img.onload = () => setTileset(img);
-
-		img.src = "src/assets/dungeontileset.png";
-
-		return () => {
-			img.onload = null;
-			img.onerror = null;
-		};
-	}, []);
-
-	//#endregion
-
 	// Canvas drawing
 	const draw = useCallback(() => {
+		if (!dungeonState?.dungeon) return;
+
+		const dungeon = dungeonState.dungeon;
+
 		//#region Canvas setup
 		const canvas = canvasRef.current;
 		if (
 			!canvas ||
+			!dungeon.tiles ||
 			!dungeonState?.player ||
-			!dungeonState?.map ||
 			!dungeonState.tileset
 		)
 			return;
@@ -82,12 +68,12 @@ export default function DungeonCanvas() {
 		const offsetX = dungeonState.player.x - canvas.width / 2;
 		const offsetY = dungeonState.player.y - canvas.height / 2;
 
-		//#endregion
+		//#endregion;
 
 		// Drawing map
 		MapDraw(
 			ctx,
-			dungeonState.map,
+			dungeon.tiles,
 			TILE_SIZE,
 			ORIGINAL_TILE_SIZE,
 			offsetX,
@@ -95,12 +81,30 @@ export default function DungeonCanvas() {
 			dungeonState.tileset,
 		);
 
-		getObjectsPosition(dungeonState.map, "entrance").forEach((entrance) => {
+		//Drawing entrance
+		getObjectsPosition(dungeon.tiles, "entrance").forEach((entrance) => {
 			ObjectsDraw(
 				ctx,
 				TILE_SIZE,
 				dungeonState.tileset as HTMLImageElement,
 				"entrance",
+				entrance.x,
+				entrance.y,
+				offsetX,
+				offsetY,
+			);
+		});
+
+		//drawing exit
+		const enemiesDefeated = dungeon.enemies.every(
+			(e) => e.status === "defeated",
+		);
+		getObjectsPosition(dungeon.tiles, "exit").forEach((entrance) => {
+			ObjectsDraw(
+				ctx,
+				TILE_SIZE,
+				dungeonState.tileset as HTMLImageElement,
+				enemiesDefeated ? "exitOpened" : "exitClosed",
 				entrance.x,
 				entrance.y,
 				offsetX,
@@ -138,16 +142,18 @@ export default function DungeonCanvas() {
 
 		//Drawing enemies
 		if (dungeonState?.enemies && dungeonState.tileset) {
-			dungeonState.enemies.forEach((enemy: Enemy) => {
-				EnemyDraw(
-					ctx,
-					TILE_SIZE,
-					dungeonState.tileset as HTMLImageElement,
-					enemy,
-					enemy.x * TILE_SIZE - offsetX,
-					enemy.y * TILE_SIZE - offsetY,
-				);
-			});
+			dungeonState.enemies
+				.filter((e) => e.status == "active")
+				.forEach((enemy: Enemy) => {
+					EnemyDraw(
+						ctx,
+						TILE_SIZE,
+						dungeonState.tileset as HTMLImageElement,
+						enemy,
+						enemy.x * TILE_SIZE - offsetX,
+						enemy.y * TILE_SIZE - offsetY,
+					);
+				});
 		}
 
 		//Drawing explosions
@@ -163,26 +169,30 @@ export default function DungeonCanvas() {
 		//Drawing player
 		PlayerDraw(ctx, TILE_SIZE, dungeonState.tileset, dungeonState.player);
 	}, [
-		dungeonState.player,
-		dungeonState.map,
-		dungeonState.tileset,
+		DrawExplosions,
+		EnemyDraw,
+		MapDraw,
+		ObjectsDraw,
+		PlayerDraw,
 		dungeonState.chests,
 		dungeonState.droppedItems,
+		dungeonState.dungeon,
 		dungeonState.enemies,
-		MapDraw,
-		getObjectsPosition,
-		DrawExplosions,
+		dungeonState.player,
+		dungeonState.tileset,
 		explosions,
-		PlayerDraw,
-		ObjectsDraw,
-		EnemyDraw,
+		getObjectsPosition,
 	]);
 
 	const handleObjectActivated = useCallback(
 		(event: GameEvent) => {
+			const obj = event.object;
+			if (!obj) return;
+
 			switch (event.objectType) {
 				case "Enemy":
 					setEnemy(event.object);
+
 					break;
 				case "Trap": {
 					ActivateTrap(event.object);
@@ -202,9 +212,24 @@ export default function DungeonCanvas() {
 					PickUpDroppedItem(event.object);
 					break;
 				}
+				case "Entrance": {
+					previousDungeon();
+					break;
+				}
+				case "Exit": {
+					nextDungeon();
+					break;
+				}
 			}
 		},
-		[ActivateChest, ActivateTrap, PickUpDroppedItem, setEnemy],
+		[
+			ActivateChest,
+			ActivateTrap,
+			PickUpDroppedItem,
+			setEnemy,
+			previousDungeon,
+			nextDungeon,
+		],
 	);
 
 	useEffect(() => {
@@ -217,7 +242,7 @@ export default function DungeonCanvas() {
 	//#region Game Loop
 	const gameLoop = useCallback(
 		(timestamp: number) => {
-			if (!dungeonState?.map || !dungeonState?.player) {
+			if (!dungeonState.dungeon?.tiles || !dungeonState?.player) {
 				animationRef.current = requestAnimationFrame(
 					gameLoopRef.current!,
 				);
@@ -256,7 +281,7 @@ export default function DungeonCanvas() {
 
 				const collision = CheckCollisions(newX, newY, TILE_SIZE);
 				if (!collision) {
-					if (dungeonState.map?.[tileY]?.[tileX].passable) {
+					if (dungeonState.dungeon?.tiles[tileY]?.[tileX].passable) {
 						//Move player
 						setPlayer({
 							x: newX,
@@ -278,7 +303,7 @@ export default function DungeonCanvas() {
 			animationRef.current = requestAnimationFrame(gameLoopRef.current!);
 		},
 		[
-			dungeonState.map,
+			dungeonState.dungeon?.tiles,
 			dungeonState.player,
 			dungeonState.enemy,
 			draw,

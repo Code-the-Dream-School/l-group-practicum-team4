@@ -23,12 +23,16 @@ export const useDungeon = () => {
 		setTileset,
 		setPlayer,
 		setEnemy,
+		newEnemy,
+		delEnemy,
 		setEnemies,
+		createDungeon,
 		getObjectsPosition,
-		setTraps,
-		setChests,
+		removeObject,
 		addDroppedItem,
 		delDroppedItem,
+		previousDungeon,
+		nextDungeon,
 	} = useDungeonContext();
 
 	const { state: marketState } = useMarket();
@@ -189,10 +193,7 @@ export const useDungeon = () => {
 			setPlayer({ health: newHealth });
 
 			//Remove trap
-			const newTraps = state.traps?.filter(
-				(item) => !(item.x === trap.x && item.y === trap.y),
-			);
-			setTraps(newTraps);
+			removeObject(trap);
 
 			toast.error(`You have triggered a trap, taking 20 damage!`, {
 				toasterId: "main",
@@ -213,12 +214,9 @@ export const useDungeon = () => {
 			if (!chest) return;
 
 			//Remove chest
-			const newChests = state.chests?.filter(
-				(item) => !(item.x === chest.x && item.y === chest.y),
-			);
-			setChests(newChests);
+			removeObject(chest);
 
-			if (Math.random() < 0.3) {
+			if (Math.random() < 0) {
 				//Activate Mimic
 				const mimic = new Enemy({
 					id: 21,
@@ -244,7 +242,8 @@ export const useDungeon = () => {
 						},
 					],
 				});
-				setEnemies([...(state.enemies ?? []), mimic]);
+				// setEnemies([...(state.enemies ?? []), mimic]);
+				newEnemy(mimic);
 
 				toast.error(`You have found a mimic!`, {
 					toasterId: "main",
@@ -310,7 +309,10 @@ export const useDungeon = () => {
 		setTileset,
 		setPlayer,
 		setEnemy,
+		newEnemy,
+		delEnemy,
 		setEnemies,
+		createDungeon,
 		MapDraw,
 		PlayerDraw,
 		EnemyDraw,
@@ -324,5 +326,7 @@ export const useDungeon = () => {
 		ActivateChest,
 		DropItem,
 		PickUpDroppedItem,
+		previousDungeon,
+		nextDungeon,
 	};
 };

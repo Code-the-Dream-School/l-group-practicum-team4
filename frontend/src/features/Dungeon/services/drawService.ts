@@ -41,11 +41,7 @@ export const mapGenerator = (seed: number, width: number, height: number) => {
 	return { map, playerX, playerY };
 };
 
-export const EnemyGenerator = (
-	map: MapTile[][],
-	seed: number,
-	enemyList: Enemy[],
-) => {
+export const EnemyGenerator = (map: MapTile[][], enemyList: Enemy[]) => {
 	if (!enemyList || enemyList.length === 0) return [];
 
 	const floorTiles: { x: number; y: number }[] = [];
@@ -56,32 +52,14 @@ export const EnemyGenerator = (
 		}
 	}
 
-	const placedEnemies: (Enemy & {
-		id: number;
-		x: number;
-		y: number;
-		radius: number;
-	})[] = [];
-
 	enemyList.forEach((enemyTemplate, index) => {
 		if (index >= floorTiles.length) return;
 
 		const tile = floorTiles[index];
-
-		placedEnemies.push({
-			...enemyTemplate,
-			x: tile.x,
-			y: tile.y,
-			radius: 14,
-		} as Enemy & {
-			id: number;
-			x: number;
-			y: number;
-			radius: number;
-		});
+		enemyTemplate.x = tile.x;
+		enemyTemplate.y = tile.y;
+		enemyTemplate.index = index;
 	});
-
-	return placedEnemies;
 };
 
 export const MapDraw = (
@@ -353,7 +331,15 @@ export const ObjectsDraw = (
 	switch (objectType) {
 		case "entrance":
 			col = 9;
-			row = 0;
+			row = 1;
+			break;
+		case "exitOpened":
+			col = 9;
+			row = 2;
+			break;
+		case "exitClosed":
+			col = 9;
+			row = 3;
 			break;
 		case "trap":
 			col = 5;
@@ -468,6 +454,10 @@ export const EnemyDraw = (
 			col = 1;
 			row = 9;
 			break;
+		case "Cyclop 2":
+			col = 1;
+			row = 9;
+			break;
 		case "Scorpion":
 			col = 2;
 			row = 9;
@@ -536,10 +526,9 @@ const CharacterDraw = (
 
 	//#region Weapon sprite
 
-	if (character.gear.weapon && character.gear.weapon?.name) {
+	if (character.gear?.weapon && character.gear.weapon.name) {
 		let wCol = 0;
 		let wRow = 0;
-
 		switch (character.gear.weapon.name) {
 			case "Dagger":
 				wCol = 7;
@@ -574,7 +563,6 @@ const CharacterDraw = (
 				wRow = 10;
 				break;
 		}
-
 		DrawSprite(
 			ctx,
 			tileset,
