@@ -100,7 +100,19 @@ function getPosition(name: string) {
 			col = 4;
 			row = 6;
 			break;
-		case "Blue Potion":
+		case "Emerald Potion":
+			col = 6;
+			row = 9;
+			break;
+		case "Crimson Potion":
+			col = 7;
+			row = 9;
+			break;
+		case "Silver Potion":
+			col = 5;
+			row = 9;
+			break;
+		case "Cobalt Potion":
 			col = 8;
 			row = 9;
 			break;
