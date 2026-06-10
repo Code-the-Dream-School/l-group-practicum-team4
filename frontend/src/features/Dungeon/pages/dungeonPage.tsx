@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Toaster } from "react-hot-toast";
 import styles from "./dungeonPage.module.css";
-import dungeonTileset from "../../assets/dungeontileset.png";
+import dungeonTileset from "../../../assets/dungeontileset.png";
 
 import DungeonCanvas from "../components/dungeonCanvas";
 import CharacterPanel from "../../../shared/components/CharacterPanel";
