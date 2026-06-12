@@ -32,10 +32,16 @@ interface DungeonEnemy {
 	status: string;
 }
 
+export type ApiResponse<T> = T & {
+	_id?: string;
+};
+
 export class Character {
+	id: string;
 	x: number;
 	y: number;
 	name: string;
+	spriteKey: string;
 	facing: string;
 	health: number;
 	attack: number;
@@ -48,10 +54,12 @@ export class Character {
 
 	private onBonusesChanged?: () => void;
 
-	constructor(data: Partial<Character>) {
+	constructor(data: ApiResponse<Partial<Character>>) {
+		this.id = data._id ?? data.id ?? "";
 		this.x = data.x ?? 0;
 		this.y = data.y ?? 0;
 		this.name = data.name ?? "";
+		this.spriteKey = data.spriteKey ?? "";
 		this.facing = data.facing ?? "Right";
 		this.health = data.health ?? 0;
 		this.attack = data.attack ?? 0;
@@ -59,7 +67,7 @@ export class Character {
 		this.speed = data.speed ?? 0;
 		this.gear = data.gear ?? {};
 		this.inventory = data.inventory ?? [];
-
+		this.coins = data.coins ?? 0;
 		this.timeBonuses = data.timeBonuses ?? [];
 	}
 
@@ -178,13 +186,11 @@ export interface TimeBonus {
 export class Player extends Character {}
 
 export class Enemy extends Character {
-	id: number;
 	index: number;
 	status: string;
 
 	constructor(data: Partial<Enemy>) {
 		super(data);
-		this.id = data.id ?? 0;
 		this.index = data.index ?? -1;
 		this.status = data.status ?? "active";
 	}

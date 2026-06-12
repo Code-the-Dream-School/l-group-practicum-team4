@@ -7,21 +7,16 @@ import {
 	ObjectsDraw,
 	DrawExplosions,
 } from "../services/drawService";
-import type {
-	Player,
-	Item,
-	CharacterGear,
-	Trap,
-	Chest,
-} from "../../../shared/models/models";
-import { Enemy, DroppedItem } from "../../../shared/models/models";
+import type { Player, Item, Trap, Chest } from "../../../shared/models/models";
+import { DroppedItem } from "../../../shared/models/models";
 import { useMarket } from "../../Marketplace/hook/useMarket";
+
+import { useCharacter } from "../../Home/hook/useCharacter";
 
 export const useDungeon = () => {
 	const {
 		state,
 		setTileset,
-		setPlayer,
 		setEnemy,
 		newEnemy,
 		delEnemy,
@@ -35,50 +30,25 @@ export const useDungeon = () => {
 		nextDungeon,
 	} = useDungeonContext();
 
+	const {
+		selectedCharacter,
+		equipItem,
+		unEquipItem,
+		setCharacterUpdated,
+		updateCharacter,
+	} = useCharacter();
+
 	const { state: marketState } = useMarket();
 
 	const EquipItem = async (item: Item) => {
 		try {
-			//POST call to API through dungeonService
+			if (!selectedCharacter) return;
 
-			const newGear: CharacterGear = { ...state.player.gear };
-			let newInventory = [...state.player.inventory];
+			const data = await equipItem(selectedCharacter.id, item);
 
-			//Assign the item to the corresponding slot
-			switch (item.type.toLowerCase()) {
-				case "helmet":
-					if (newGear.helmet) newInventory.push(newGear.helmet);
-					newGear.helmet = item;
-					break;
-				case "armor":
-					if (newGear.armor) newInventory.push(newGear.armor);
-					newGear.armor = item;
-					break;
-				case "shield":
-					if (newGear.shield) newInventory.push(newGear.shield);
-					newGear.shield = item;
-					break;
-				case "weapon":
-					if (newGear.weapon) newInventory.push(newGear.weapon);
-					newGear.weapon = item;
-					break;
-				default:
-					toast.error("Item type no equipable.", {
-						toasterId: "main",
-					});
-					return;
-			}
+			if (!data) throw new Error("Failed to equip item");
 
-			//Removing item from inventory
-			newInventory = newInventory.filter(
-				(invItem) => invItem.id !== item.id,
-			);
-
-			//Update Player
-			setPlayer({
-				gear: newGear,
-				inventory: newInventory,
-			});
+			setCharacterUpdated(true);
 
 			toast.success(`${item.name} was equiped.`, {
 				toasterId: "main",
@@ -96,34 +66,13 @@ export const useDungeon = () => {
 
 	const UnequipItem = async (item: Item) => {
 		try {
-			//POST call to API through dungeonService
+			if (!selectedCharacter) return;
 
-			const newGear: CharacterGear = { ...state.player.gear };
-			switch (item.type.toLowerCase()) {
-				case "helmet":
-					newGear.helmet = undefined;
-					break;
-				case "armor":
-					newGear.armor = undefined;
-					break;
-				case "shield":
-					newGear.shield = undefined;
-					break;
-				case "weapon":
-					newGear.weapon = undefined;
-					break;
-				default:
-					toast.error("Unrecognized item type.", {
-						toasterId: "main",
-					});
-					return;
-			}
+			const data = await unEquipItem(selectedCharacter.id, item);
 
-			//Adding item to inventory
-			setPlayer({
-				gear: newGear,
-				inventory: [...state.player.inventory, item],
-			});
+			if (!data) throw new Error("Failed to unequip item");
+
+			setCharacterUpdated(true);
 
 			toast.success(`${item.name} was unequiped.`, {
 				toasterId: "main",
@@ -141,31 +90,47 @@ export const useDungeon = () => {
 
 	const ConsumeItem = async (item: Item) => {
 		try {
-			//POST call to API through dungeonService
+			if (!selectedCharacter) return;
 
-			const newInventory = state.player.inventory.filter(
-				(invItem) => invItem.id !== item.id,
-			);
-
-			const playerUpdates: Partial<Player> = {};
-
-			if (item.stat.toLowerCase() === "health") {
-				playerUpdates.health = state.player.health + item.value;
-			} else if (
-				["attack", "defense", "speed"].includes(item.stat.toLowerCase())
+			if (
+				!["health", "attack", "defense", "speed"].includes(
+					item.stat.toLowerCase(),
+				)
 			) {
-				state.player.applyTemporaryBonus(item.stat, item.value, 120000);
-			} else {
 				toast.error(`"${item.stat}" stat is not consumable.`, {
 					toasterId: "main",
 				});
 				return;
 			}
 
-			setPlayer({
-				...playerUpdates,
-				inventory: newInventory,
-			});
+			const itemIndex = selectedCharacter.inventory.findIndex(
+				(i) => i.id == item.id,
+			);
+			const newInventory = selectedCharacter.inventory.filter(
+				(_, index) => index !== itemIndex,
+			);
+			// const newInventory = selectedCharacter.inventory.filter(
+			// 	(invItem) => invItem.id !== item.id,
+			// );
+
+			const playerUpdates: Partial<Player> = { inventory: newInventory };
+
+			if (item.stat.toLowerCase() === "health") {
+				playerUpdates.health = selectedCharacter.health + item.value;
+			}
+
+			await updateCharacter(selectedCharacter.id, playerUpdates);
+			setCharacterUpdated(true);
+
+			if (
+				["attack", "defense", "speed"].includes(item.stat.toLowerCase())
+			) {
+				selectedCharacter.applyTemporaryBonus(
+					item.stat,
+					item.value,
+					120000,
+				);
+			}
 
 			toast.success(
 				`¡${item.name} consumido! (+${item.value} ${item.stat})`,
@@ -186,11 +151,11 @@ export const useDungeon = () => {
 
 	const ActivateTrap = (trap: Trap) => {
 		try {
-			if (!trap) return;
+			if (!trap || !selectedCharacter) return;
 
 			//Damage
-			const newHealth = state.player.health - 20;
-			setPlayer({ health: newHealth });
+			const newHealth = selectedCharacter.health - 20;
+			updateCharacter(selectedCharacter.id, { health: newHealth });
 
 			//Remove trap
 			removeObject(trap);
@@ -216,61 +181,26 @@ export const useDungeon = () => {
 			//Remove chest
 			removeObject(chest);
 
-			if (Math.random() < 0) {
-				//Activate Mimic
-				const mimic = new Enemy({
-					id: 21,
+			//drop a random item
+			const item = marketState.marketItems?.length
+				? marketState.marketItems[
+						Math.floor(
+							Math.random() * marketState.marketItems.length,
+						)
+					]
+				: null;
+			if (item) {
+				const droppedItem = new DroppedItem({
 					x: chest.x,
 					y: chest.y,
-					name: "Mimic",
-					facing: "Right",
-					health: 50,
-					attack: 30,
-					defense: 20,
-					speed: 8,
-					gear: {},
-					inventory: [
-						{
-							id: "6a02429037f12861fcf56ab8",
-							name: "Helpful Mimic blood",
-							description: "Health potion.",
-							type: "potion",
-							stat: "health",
-							value: 20,
-							coinCost: 20,
-							inventoryId: "",
-						},
-					],
+					item: item,
 				});
-				// setEnemies([...(state.enemies ?? []), mimic]);
-				newEnemy(mimic);
-
-				toast.error(`You have found a mimic!`, {
-					toasterId: "main",
-				});
-				return;
-			} else {
-				//drop a random item
-				const item = marketState.marketItems?.length
-					? marketState.marketItems[
-							Math.floor(
-								Math.random() * marketState.marketItems.length,
-							)
-						]
-					: null;
-				if (item) {
-					const droppedItem = new DroppedItem({
-						x: chest.x,
-						y: chest.y,
-						item: item,
-					});
-					addDroppedItem(droppedItem);
-				}
-
-				toast.success(`You have opened a chest!`, {
-					toasterId: "main",
-				});
+				addDroppedItem(droppedItem);
 			}
+
+			toast.success(`You have opened a chest!`, {
+				toasterId: "main",
+			});
 		} catch (e) {
 			const errorMessage =
 				e instanceof Error ? e.message : "Unexpected error";
@@ -295,11 +225,12 @@ export const useDungeon = () => {
 
 	const PickUpDroppedItem = async (droppedItem: DroppedItem) => {
 		const newItem = droppedItem.item;
-		if (!newItem) return;
+		if (!newItem || !selectedCharacter) return;
 
-		setPlayer({
-			inventory: [...(state.player?.inventory ?? []), newItem],
+		await updateCharacter(selectedCharacter.id, {
+			inventory: [...(selectedCharacter.inventory ?? []), newItem],
 		});
+		setCharacterUpdated(true);
 
 		delDroppedItem(droppedItem);
 	};
@@ -307,7 +238,6 @@ export const useDungeon = () => {
 	return {
 		state,
 		setTileset,
-		setPlayer,
 		setEnemy,
 		newEnemy,
 		delEnemy,

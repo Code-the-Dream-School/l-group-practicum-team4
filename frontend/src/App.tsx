@@ -59,7 +59,6 @@ function App() {
 								/>
 							</Routes>
 						</div>
-						<Footer />
 						<Toaster
 							toasterId="main"
 							position="bottom-right"

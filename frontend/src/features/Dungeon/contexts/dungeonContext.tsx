@@ -24,12 +24,12 @@ import {
 	type DroppedItem,
 } from "../../../shared/models/models";
 import { useAuth } from "../../auth/context/useAuth";
+import { useCharacter } from "../../Home/hook/useCharacter";
 
 interface DungeonContextType {
 	state: typeof initialStates;
 	isLoading: (value: boolean) => void;
 	setTileset: (tileset: HTMLImageElement) => void;
-	setPlayer: (updates: Partial<Player> | null) => void;
 	setEnemies: (updates: Enemy[] | undefined) => void;
 	newEnemy: (updates: Enemy) => void;
 	delEnemy: (updates: Enemy) => void;
@@ -53,6 +53,9 @@ const DungeonContext = createContext<DungeonContextType | undefined>(undefined);
 export function DungeonProvider({ children }: { children: ReactNode }) {
 	const [dungeonsUpdated, setDungeonsUpdated] = useState(false);
 	const [dungeonUpdated, setDungeonUpdated] = useState(false);
+	const [dungeonCreating, setDungeonCreating] = useState(false);
+
+	const { selectedCharacter, moveCharacter } = useCharacter();
 
 	const { state: authState } = useAuth();
 
@@ -86,13 +89,6 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		dispatch({
 			type: actions.SET_DUNGEON,
 			payload: dungeon,
-		});
-	};
-
-	const setPlayer = (updates: Partial<Player> | null) => {
-		dispatch({
-			type: actions.SET_PLAYER,
-			payload: updates,
 		});
 	};
 
@@ -179,6 +175,8 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 	};
 
 	const createDungeon = async () => {
+		if (!authState.isAuthenticated || !authState.token) return;
+
 		const getRandomSize = (min: number, max: number): number => {
 			return Math.floor(Math.random() * (max - min + 1)) + min;
 		};
@@ -186,15 +184,17 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		isLoading(true);
 
 		const level = (state.dungeons?.length ?? 0) + 1;
-		const width = getRandomSize(10, 20) * level;
-		const height = getRandomSize(10, 20) * level;
+		const width = getRandomSize(10, 30);
+		const height = getRandomSize(10, 30);
 
-		//Create dungeon
-		const newDungeonData = await newDungeon(width, height, level);
+		if (!state.dungeons?.find((d) => d.level === level)) {
+			//Create dungeon
+			const newDungeonData = await newDungeon(width, height, level);
 
-		//Load new dungeon
-		if (newDungeonData) {
-			setDungeonsUpdated(true);
+			//Load new dungeon
+			if (newDungeonData) {
+				setDungeonsUpdated(true);
+			}
 		}
 
 		isLoading(false);
@@ -219,12 +219,15 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 	};
 
 	const nextDungeon = () => {
+		if (dungeonCreating) return;
 		if (!state.dungeon || !state.dungeons || state.dungeons.length === 0)
 			return;
 
 		//New dungeon
-		if (state.dungeons.every((d) => d.level <= state.dungeon.level))
+		if (state.dungeons.every((d) => d.level <= state.dungeon.level)) {
+			setDungeonCreating(true);
 			createDungeon();
+		}
 
 		//next dungeon
 		const dungeon = state.dungeons?.find(
@@ -258,6 +261,8 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		//Chests
 		const chests = getObjectsPosition(state.dungeon.tiles, "chest");
 		setChests(chests);
+
+		setDungeonCreating(false);
 	}, [state.dungeon]);
 
 	useEffect(() => {
@@ -276,7 +281,7 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 		//Player
 		const entrancePos = getObjectsPosition(state.dungeon.tiles, "entrance");
 
-		if (entrancePos.length > 0) {
+		if (selectedCharacter && entrancePos.length > 0) {
 			const entranceX = entrancePos[0].x;
 			const entranceY = entrancePos[0].y;
 			let playerPos = { x: entrancePos[0].x, y: entrancePos[0].y };
@@ -290,14 +295,15 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 			else if (state.dungeon.tiles[entranceY - 1][entranceX]?.passable)
 				playerPos = { x: entranceX, y: entranceY - 1 };
 
-			setPlayer({
-				x: playerPos.x * TILE_SIZE + TILE_SIZE / 2,
-				y: playerPos.y * TILE_SIZE + TILE_SIZE / 2,
-			});
+			moveCharacter(
+				playerPos.x * TILE_SIZE + TILE_SIZE / 2,
+				playerPos.y * TILE_SIZE + TILE_SIZE / 2,
+				selectedCharacter.facing,
+			);
 		}
 
 		LoadDungeonData();
-	}, [LoadDungeonData, state.dungeon]);
+	}, [LoadDungeonData, moveCharacter, selectedCharacter, state.dungeon]);
 
 	const fetchDungeon = useCallback(async (dungeonId: string) => {
 		const dungeon = await getDungeon(dungeonId);
@@ -333,7 +339,6 @@ export function DungeonProvider({ children }: { children: ReactNode }) {
 				state,
 				isLoading,
 				setTileset,
-				setPlayer,
 				setEnemies,
 				newEnemy,
 				delEnemy,

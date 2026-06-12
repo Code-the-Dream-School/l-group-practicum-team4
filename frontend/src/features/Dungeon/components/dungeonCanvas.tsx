@@ -1,18 +1,19 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import styles from "./dungeonCanvas.module.css";
 import { useDungeon } from "../hooks/dungeonHook";
-import { Enemy, TilePosition } from "../../../shared/models/models";
+import { useCharacter } from "../../Home/hook/useCharacter";
+import { Enemy } from "../../../shared/models/models";
 import {
 	gameEvents,
 	type GameEvent,
 } from "../../../shared/services/gameEvents";
 import { useCollision } from "../hooks/collisionHook";
 import { type Explosion } from "../services/drawService";
+import toast from "react-hot-toast";
 
 export default function DungeonCanvas() {
 	const {
 		state: dungeonState,
-		setPlayer,
 		setEnemy,
 		MapDraw,
 		PlayerDraw,
@@ -26,6 +27,8 @@ export default function DungeonCanvas() {
 		previousDungeon,
 		nextDungeon,
 	} = useDungeon();
+
+	const { selectedCharacter, moveCharacter } = useCharacter();
 
 	const { CheckCollisions } = useCollision(dungeonState);
 
@@ -49,13 +52,7 @@ export default function DungeonCanvas() {
 
 		//#region Canvas setup
 		const canvas = canvasRef.current;
-		if (
-			!canvas ||
-			!dungeon.tiles ||
-			!dungeonState?.player ||
-			!dungeonState.tileset
-		)
-			return;
+		if (!canvas || !dungeon.tiles || !dungeonState.tileset) return;
 
 		const ctx = canvas.getContext("2d");
 		if (!ctx) return;
@@ -65,8 +62,12 @@ export default function DungeonCanvas() {
 		ctx.fillStyle = "#763B36";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		const offsetX = dungeonState.player.x - canvas.width / 2;
-		const offsetY = dungeonState.player.y - canvas.height / 2;
+		const offsetX =
+			(selectedCharacter ? selectedCharacter.x : canvas.width / 4) -
+			canvas.width / 2;
+		const offsetY =
+			(selectedCharacter ? selectedCharacter.y : canvas.height / 4) -
+			canvas.height / 2;
 
 		//#endregion;
 
@@ -132,7 +133,7 @@ export default function DungeonCanvas() {
 				ctx,
 				TILE_SIZE,
 				dungeonState.tileset as HTMLImageElement,
-				"item",
+				item.item?.name || "",
 				item.x,
 				item.y,
 				offsetX,
@@ -167,8 +168,10 @@ export default function DungeonCanvas() {
 		);
 
 		//Drawing player
-		PlayerDraw(ctx, TILE_SIZE, dungeonState.tileset, dungeonState.player);
+		if (selectedCharacter && selectedCharacter.health > 0)
+			PlayerDraw(ctx, TILE_SIZE, dungeonState.tileset, selectedCharacter);
 	}, [
+		selectedCharacter,
 		DrawExplosions,
 		EnemyDraw,
 		MapDraw,
@@ -178,7 +181,6 @@ export default function DungeonCanvas() {
 		dungeonState.droppedItems,
 		dungeonState.dungeon,
 		dungeonState.enemies,
-		dungeonState.player,
 		dungeonState.tileset,
 		explosions,
 		getObjectsPosition,
@@ -242,7 +244,7 @@ export default function DungeonCanvas() {
 	//#region Game Loop
 	const gameLoop = useCallback(
 		(timestamp: number) => {
-			if (!dungeonState.dungeon?.tiles || !dungeonState?.player) {
+			if (!dungeonState.dungeon?.tiles) {
 				animationRef.current = requestAnimationFrame(
 					gameLoopRef.current!,
 				);
@@ -268,34 +270,51 @@ export default function DungeonCanvas() {
 				vx += 1;
 
 			if (vx !== 0 || vy !== 0) {
-				const len = Math.hypot(vx, vy);
-				vx = (vx / len) * playerSpeed * delta;
-				vy = (vy / len) * playerSpeed * delta;
+				if (!selectedCharacter || selectedCharacter.health <= 0) {
+					console.log("No character selected");
+				} else {
+					const len = Math.hypot(vx, vy);
+					vx = (vx / len) * playerSpeed * delta;
+					vy = (vy / len) * playerSpeed * delta;
 
-				const newX = dungeonState.player.x + vx;
-				const newY = dungeonState.player.y + vy;
+					const newX = selectedCharacter.x + vx;
+					const newY = selectedCharacter.y + vy;
 
-				// Walls collisions
-				const tileX = Math.floor(newX / TILE_SIZE);
-				const tileY = Math.floor(newY / TILE_SIZE);
+					// Walls collisions
+					const tileX = Math.floor(newX / TILE_SIZE);
+					const tileY = Math.floor(newY / TILE_SIZE);
 
-				const collision = CheckCollisions(newX, newY, TILE_SIZE);
-				if (!collision) {
-					if (dungeonState.dungeon?.tiles[tileY]?.[tileX].passable) {
-						//Move player
-						setPlayer({
-							x: newX,
-							y: newY,
-							facing:
-								vx > 0
-									? "Right"
-									: vx < 0
-										? "Left"
-										: dungeonState.player.facing,
-						});
+					if (
+						tileX >= 0 &&
+						tileX < dungeonState.dungeon?.width &&
+						tileY >= 0 &&
+						tileY < dungeonState.dungeon?.height
+					) {
+						const collision = CheckCollisions(
+							newX,
+							newY,
+							TILE_SIZE,
+						);
+						if (!collision) {
+							if (
+								dungeonState.dungeon?.tiles[tileY]?.[tileX]
+									?.passable
+							) {
+								//Move player
+								moveCharacter(
+									newX,
+									newY,
+									vx > 0
+										? "Right"
+										: vx < 0
+											? "Left"
+											: selectedCharacter.facing,
+								);
+							}
+
+							if (dungeonState.enemy) setEnemy(null);
+						}
 					}
-
-					if (dungeonState.enemy) setEnemy(null);
 				}
 			}
 
@@ -304,12 +323,14 @@ export default function DungeonCanvas() {
 		},
 		[
 			dungeonState.dungeon?.tiles,
-			dungeonState.player,
+			dungeonState.dungeon?.width,
+			dungeonState.dungeon?.height,
 			dungeonState.enemy,
 			draw,
+			selectedCharacter,
 			CheckCollisions,
 			setEnemy,
-			setPlayer,
+			moveCharacter,
 		],
 	);
 	//#endregion

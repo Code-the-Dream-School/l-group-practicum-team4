@@ -349,6 +349,70 @@ export const ObjectsDraw = (
 			col = 5;
 			row = 7;
 			break;
+		case "Dagger":
+			col = 7;
+			row = 8;
+			break;
+		case "Sword":
+			col = 8;
+			row = 8;
+			break;
+		case "BroadSword":
+			col = 10;
+			row = 8;
+			break;
+		case "Mace":
+			col = 9;
+			row = 9;
+			break;
+		case "Axe":
+			col = 11;
+			row = 9;
+			break;
+		case "Double Axe":
+			col = 10;
+			row = 9;
+			break;
+		case "Spear":
+			col = 11;
+			row = 10;
+			break;
+		case "Wooden Shield":
+			col = 5;
+			row = 8;
+			break;
+		case "Plate Shield":
+			col = 6;
+			row = 8;
+			break;
+		case "Plate Armor":
+			col = 6;
+			row = 6;
+			break;
+		case "Iron Helmet":
+			col = 5;
+			row = 6;
+			break;
+		case "Plate Helmet":
+			col = 4;
+			row = 6;
+			break;
+		case "Emerald Potion":
+			col = 6;
+			row = 9;
+			break;
+		case "Crimson Potion":
+			col = 7;
+			row = 9;
+			break;
+		case "Silver Potion":
+			col = 5;
+			row = 9;
+			break;
+		case "Cobalt Potion":
+			col = 8;
+			row = 9;
+			break;
 		case "enemy_spawn":
 			col = 0;
 			row = 9;
@@ -395,7 +459,7 @@ export const PlayerDraw = (
 	ctx: CanvasRenderingContext2D,
 	tileSize: number,
 	tileset: HTMLImageElement,
-	player: Player,
+	player: Character,
 ) => {
 	if (!ctx || !tileset) return;
 

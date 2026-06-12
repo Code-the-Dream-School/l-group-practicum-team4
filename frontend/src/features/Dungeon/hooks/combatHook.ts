@@ -2,11 +2,13 @@ import toast from "react-hot-toast";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Player, Enemy } from "../../../shared/models/models";
 import { useDungeon } from "./dungeonHook";
+import { useCharacter } from "../../Home/hook/useCharacter";
 import {
 	combatActionHandler,
 	actionTypes,
 	type ActionType,
 } from "./combatActions";
+import { updateCharacter } from "../../Home/api/CharacterApi";
 
 export const useCombat = () => {
 	const [autoCombat, setAutoCombat] = useState(false);
@@ -18,21 +20,22 @@ export const useCombat = () => {
 
 	const {
 		state: dungeonState,
-		setPlayer,
 		setEnemy,
 		delEnemy,
 		setEnemies,
 		DropItem,
 	} = useDungeon();
 
+	const { selectedCharacter, selectCharacter } = useCharacter();
+
 	const timerRef = useRef<number | null>(null);
-	const playerRef = useRef(dungeonState.player);
+	const playerRef = useRef(selectedCharacter);
 	const enemyRef = useRef(dungeonState.enemy);
 
 	useEffect(() => {
-		playerRef.current = dungeonState.player;
+		playerRef.current = selectedCharacter;
 		enemyRef.current = dungeonState.enemy;
-	}, [dungeonState.player, dungeonState.enemy]);
+	}, [selectedCharacter, dungeonState.enemy]);
 
 	const calculateNextActionTime = useCallback(
 		(speed: number): { nextTime: number; baseTime: number } => {
@@ -142,10 +145,13 @@ export const useCombat = () => {
 		if (!player) return;
 
 		//Unselect player
-		//setPlayer(null);
+		//selectCharacter(null);
 
 		//Drop player items
 		//DropItems(player);
+
+		//UpdatePlayer
+		updateCharacter(player.id, { health: 0 });
 
 		toast.error(`¡${player.name} was defeated!`, {
 			toasterId: "main",
@@ -172,7 +178,9 @@ export const useCombat = () => {
 			//Enemy action
 			if (now >= enemyNAT && now < playerNAT) {
 				action(enemyRef.current, playerRef.current, actionTypes.ATTACK);
-				setPlayer(playerRef.current);
+
+				if (selectedCharacter)
+					selectedCharacter.health = playerRef.current.health;
 			}
 
 			// Verify results
@@ -184,7 +192,8 @@ export const useCombat = () => {
 			}
 		};
 
-		timerRef.current = setInterval(autoCombatLoop, 200);
+		if (selectedCharacter && selectedCharacter.health > 0)
+			timerRef.current = setInterval(autoCombatLoop, 200);
 
 		return () => {
 			if (timerRef.current) {
@@ -199,13 +208,14 @@ export const useCombat = () => {
 		enemyNAT,
 		playerDeath,
 		playerNAT,
+		selectCharacter,
+		selectedCharacter,
 		setEnemies,
 		setEnemy,
-		setPlayer,
 	]);
 
 	useEffect(() => {
-		if (playerRef && enemyRef && enemyRef.current) {
+		if (playerRef && enemyRef && playerRef.current && enemyRef.current) {
 			const playerActionTime = calculateNextActionTime(
 				playerRef.current.speed,
 			);
@@ -222,7 +232,7 @@ export const useCombat = () => {
 
 	const playerAction = useCallback(
 		(playerAction: ActionType) => {
-			if (!enemyRef.current) return;
+			if (!enemyRef.current || !playerRef.current) return;
 			action(playerRef.current, enemyRef.current, playerAction);
 			setEnemy(enemyRef.current);
 		},

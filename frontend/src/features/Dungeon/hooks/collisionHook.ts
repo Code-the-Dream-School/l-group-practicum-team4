@@ -31,7 +31,7 @@ export const useCollision = (dungeonState: State) => {
 			if (enemy) {
 				setCollisionTile({ x: tileX, y: tileY });
 				gameEvents.emit("ObjectActivated", enemy, "Enemy");
-				console.log(colissionTile);
+
 				return true;
 			}
 		}
@@ -56,7 +56,7 @@ export const useCollision = (dungeonState: State) => {
 			if (chest) {
 				setCollisionTile({ x: tileX, y: tileY });
 				gameEvents.emit("ObjectActivated", chest, "Chest");
-				console.log(colissionTile);
+
 				return true;
 			}
 		}
