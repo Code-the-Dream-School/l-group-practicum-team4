@@ -11,13 +11,16 @@
 	height: 110px;
 	border-radius: 50%;
 	border: 8px solid var(--bg-basic);
-	object-fit: cover;
 	background-color: var(--primary-color);
-	justify-self: center;
 	align-content: center;
-	& h2 {
+	justify-content: center;
+	& div {
 		justify-self: center;
 	}
+}
+
+.avatar-right {
+	justify-self: right;
 }
 
 .container {
@@ -32,12 +35,22 @@
 	border-radius: 24px 24px 0px 0px;
 	background-color: var(--bg-basic);
 	display: flex;
-	align-items: flex-end;
-	justify-content: space-around;
+	flex-direction: column;
+	align-items: center;
+	& h2 {
+		margin-left: 80px;
+	}
+}
+
+.header-container-right {
+	& h2 {
+		margin-left: 20px;
+		align-self: flex-start;
+	}
 }
 
 .header {
-	margin-top: 80px;
+	margin-top: 20px;
 	display: flex;
 }
 

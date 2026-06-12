@@ -1,70 +1,59 @@
-import { useEffect } from "react";
 import styles from "./MarketPanel.module.css";
-import {useMarket} from "../hook/useMarket";
+import { useMarket } from "../hook/useMarket";
 import MarketItems from "./MarketItems";
 import tilesetImg from "../../../assets/dungeontileset.png";
-import { getItems } from "../api/itemsApi";
-import {useMarketActions } from "../hook/useMarketActions"
-import { useCharacter } from "../../Home/hook/useCharacter"
+import { useMarketActions } from "../hook/useMarketActions";
+import { useCharacter } from "../../Home/hook/useCharacter";
 
 const tileset = new Image();
 tileset.src = tilesetImg;
 
 const MarketPanel = () => {
-  const { selectedCharacter } = useCharacter();
-  const { state, dispatch} = useMarket();
-  const { sellItem, buyItem} = useMarketActions()
+	const { selectedCharacter } = useCharacter();
+	const { state } = useMarket();
+	const { sellItem, buyItem } = useMarketActions();
 
-  useEffect(()=>{
-    const loadItems = async() => {
-      try {
-        const items = await getItems();
-        dispatch ({
-          type:'SET_ITEMS',
-          payload: items,
-        })
-      } catch (error) {
-        console.error('Failed to load items', error);
-      }
-    }
-    loadItems()
-  }, [dispatch])
+	const sellItems = selectedCharacter?.inventory ?? [];
 
+	return (
+		<div className={styles.marketPanel}>
+			<div className={styles.marketHeader}> MARKET </div>
+			<div className={styles.marketContent}>
+				<div className={styles.marketSection}>
+					<h2 className={`${styles.sectionTitle} ${styles.buy}`}>
+						Buy
+					</h2>
+					<MarketItems
+						tileset={tileset}
+						items={state.marketItems}
+						onBuy={buyItem}
+						mode="buy"
+						className={styles.buyItems}
+					/>
+				</div>
 
-  const sellItems = selectedCharacter?.inventory ?? [];
- 
-  return (
-    <div className={styles.marketPanel}>
-      <div className={styles.marketHeader}> MARKET </div>
-      <div className={styles.marketContent}>
-        <div className={styles.marketSection}>
-          <h2 className={`${styles.sectionTitle} ${styles.buy}`}>Buy</h2>
-          <MarketItems
-            tileset={tileset}
-            items={state.marketItems}
-            onBuy={buyItem}
-            mode="buy"
-            className={styles.buyItems}
-          />
-        </div>
+				<div className={styles.marketDivider}></div>
 
-        <div className={styles.marketDivider}></div>
+				<div className={styles.marketSection}>
+					<h2 className={`${styles.sectionTitle} ${styles.sell}`}>
+						Sell
+					</h2>
+					<MarketItems
+						tileset={tileset}
+						items={sellItems}
+						onSell={sellItem}
+						mode="sell"
+						className={styles.sellItems}
+					/>
+				</div>
+			</div>
 
-        <div className={styles.marketSection}>
-          <h2  className={`${styles.sectionTitle} ${styles.sell}`}>Sell</h2>
-          <MarketItems
-            tileset={tileset}
-            items={sellItems}
-            onSell={sellItem}
-            mode="sell"
-            className = {styles.sellItems}
-          />
-        </div>
-      </div>
-
-      <div className={styles.marketGold}> Gold: {selectedCharacter.coins} </div>
-    </div>
-  );
+			<div className={styles.marketGold}>
+				{" "}
+				Gold: {selectedCharacter?.coins}{" "}
+			</div>
+		</div>
+	);
 };
 
-export default MarketPanel
+export default MarketPanel;

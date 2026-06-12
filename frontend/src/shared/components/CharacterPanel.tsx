@@ -6,12 +6,14 @@ import ItemTooltip from "./ItemTooltip";
 
 function CharacterPanel({
 	character,
+	isPlayer = true,
 	tileset,
 	equipItem,
 	unequipItem,
 	consumeItem,
 }: {
 	character: Character;
+	isPlayer?: boolean;
 	tileset: HTMLImageElement;
 	equipItem?: (item: Item) => void;
 	unequipItem?: (item: Item) => void;
@@ -21,11 +23,24 @@ function CharacterPanel({
 
 	return (
 		<div className={styles["panel-container"]}>
-			<div className={styles["avatar"]}>
-				{character?.name && <h2>{character.name}</h2>}
+			<div
+				className={`${styles["avatar"]} ${!isPlayer ? styles["avatar-right"] : ""}`}
+			>
+				{character?.spriteKey && (
+					<div>
+						<Sprite
+							tileset={tileset}
+							size={70}
+							itemName={character.spriteKey}
+						/>
+					</div>
+				)}
 			</div>
 			<div className={styles["container"]}>
-				<div className={styles["header-container"]}>
+				<div
+					className={`${styles["header-container"]} ${!isPlayer ? styles["header-container-right"] : ""}`}
+				>
+					<h2>{character.name}</h2>
 					<div className={styles["header"]}>
 						<button
 							className={`${styles.tab} ${activeTab === "stats" ? styles.active : styles.tab}`}
@@ -77,7 +92,7 @@ function GearContainer({
 	return (
 		<div className={styles["gear-container"]}>
 			<div className={styles["gear"]}>
-				{character.gear.helmet ? (
+				{character.gear?.helmet ? (
 					<button
 						onClick={() => unequipItem?.(character.gear.helmet!)}
 					>
@@ -95,7 +110,7 @@ function GearContainer({
 			</div>
 			<div className={styles["center-gear-container"]}>
 				<div className={styles["gear"]}>
-					{character.gear.shield ? (
+					{character.gear?.shield ? (
 						<button
 							onClick={() =>
 								unequipItem?.(character.gear.shield!)
@@ -114,7 +129,7 @@ function GearContainer({
 					)}
 				</div>
 				<div className={styles["gear"]}>
-					{character.gear.armor ? (
+					{character.gear?.armor ? (
 						<button
 							onClick={() => unequipItem?.(character.gear.armor!)}
 						>
@@ -131,7 +146,7 @@ function GearContainer({
 					)}
 				</div>
 				<div className={styles["gear"]}>
-					{character.gear.weapon ? (
+					{character.gear?.weapon ? (
 						<button
 							onClick={() =>
 								unequipItem?.(character.gear.weapon!)

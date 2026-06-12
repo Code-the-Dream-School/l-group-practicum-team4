@@ -1,4 +1,4 @@
-import { Player, Enemy } from "../../../shared/models/models";
+import { Character } from "../../../shared/models/models";
 
 export const actionTypes = {
 	ATTACK: "attack",
@@ -8,8 +8,8 @@ export const actionTypes = {
 export type ActionType = (typeof actionTypes)[keyof typeof actionTypes];
 
 export const combatActionHandler = (
-	attackChar: Player | Enemy,
-	defendChar: Player | Enemy,
+	attackChar: Character,
+	defendChar: Character,
 	action: ActionType,
 ) => {
 	switch (action) {

@@ -6,20 +6,22 @@ import dungeonTileset from "../../../assets/dungeontileset.png";
 import DungeonCanvas from "../components/dungeonCanvas";
 import CharacterPanel from "../../../shared/components/CharacterPanel";
 import CombatPanel from "../../../shared/components/CombatPanel";
+import DungeonsBar from "./dungeonsBar";
 
 import { useDungeon } from "../hooks/dungeonHook";
-import DungeonsBar from "./dungeonsBar";
+import { useCharacter } from "../../Home/hook/useCharacter";
 
 export default function DungeonPage() {
 	const {
 		state: dungeonState,
 		setTileset,
-		setPlayer,
 		createDungeon,
 		EquipItem,
 		UnequipItem,
 		ConsumeItem,
 	} = useDungeon();
+
+	const { selectedCharacter } = useCharacter();
 
 	//#region Load tileset
 	const imgRef = useRef<HTMLImageElement>(null);
@@ -41,21 +43,21 @@ export default function DungeonPage() {
 	//#endregion
 
 	useEffect(() => {
-		if (dungeonState.player) {
-			dungeonState.player.setOnBonusesChanged(() => {
-				setPlayer({});
+		if (selectedCharacter) {
+			selectedCharacter.setOnBonusesChanged(() => {
+				//selectCharacter();
 			});
 		}
-	}, [dungeonState.player, setPlayer]);
+	}, [selectedCharacter]);
 
 	return (
 		<div className={styles["dungeon-container"]}>
 			{dungeonState.dungeon ? <DungeonCanvas /> : <></>}
 			<div className={styles["dungeon-UI"]}>
-				{dungeonState.player && dungeonState.tileset && (
+				{selectedCharacter && dungeonState.tileset && (
 					<div className={styles["panelLeft"]}>
 						<CharacterPanel
-							character={dungeonState.player}
+							character={selectedCharacter}
 							tileset={dungeonState.tileset}
 							equipItem={EquipItem}
 							unequipItem={UnequipItem}
@@ -128,11 +130,11 @@ export default function DungeonPage() {
 									},
 								}}
 							/>
-							{dungeonState.player &&
+							{selectedCharacter &&
 							dungeonState.enemy &&
 							dungeonState.tileset ? (
 								<CombatPanel
-									player={dungeonState.player}
+									player={selectedCharacter}
 									enemy={dungeonState.enemy}
 									tileset={dungeonState.tileset}
 								/>
@@ -147,6 +149,7 @@ export default function DungeonPage() {
 						{dungeonState.enemy && dungeonState.tileset ? (
 							<CharacterPanel
 								character={dungeonState.enemy}
+								isPlayer={false}
 								tileset={dungeonState.tileset}
 							/>
 						) : (

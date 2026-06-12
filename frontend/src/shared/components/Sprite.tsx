@@ -120,6 +120,22 @@ function getPosition(name: string) {
 			col = 7;
 			row = 1;
 			break;
+		case "Knight":
+			col = 1;
+			row = 8;
+			break;
+		case "Horned Warrior":
+			col = 3;
+			row = 7;
+			break;
+		case "Mage":
+			col = 0;
+			row = 7;
+			break;
+		case "Helmet Warrior":
+			col = 0;
+			row = 8;
+			break;
 		default:
 			col = 0;
 			row = 5;
